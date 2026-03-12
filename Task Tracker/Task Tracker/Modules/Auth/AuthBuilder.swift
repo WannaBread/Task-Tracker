@@ -1,8 +1,3 @@
-//
-//  AuthBuilder.swift
-//  Task Tracker
-//
-
 import UIKit
 
 enum AuthBuilder {

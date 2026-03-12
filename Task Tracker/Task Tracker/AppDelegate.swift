@@ -1,10 +1,3 @@
-//
-//  AppDelegate.swift
-//  Task Tracker
-//
-//  Created by Данила Мордвинцев on 04.03.2026.
-//
-
 import UIKit
 import CoreData
 

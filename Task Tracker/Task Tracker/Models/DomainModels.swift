@@ -1,24 +1,15 @@
-//
-//  DomainModels.swift
-//  Task Tracker
-//
-//  YARCH Architecture — Domain Models
-//
-
 import Foundation
 
 // MARK: - User Session
 
-/// Сессия авторизованного пользователя.
 struct UserSession: Equatable, Codable {
     let token: String
     let userId: String
     let email: String
 }
 
-// MARK: - Task Priority (Важность)
+// MARK: - Task Priority
 
-/// Уровень важности задачи.
 enum TaskPriority: Int, Equatable, Codable, CaseIterable, Comparable {
     case low = 0
     case medium = 1
@@ -27,10 +18,10 @@ enum TaskPriority: Int, Equatable, Codable, CaseIterable, Comparable {
 
     var title: String {
         switch self {
-        case .low:      return "Низкий"
-        case .medium:   return "Средний"
-        case .high:     return "Высокий"
-        case .critical: return "Критический"
+        case .low:      return "Low"
+        case .medium:   return "Medium"
+        case .high:     return "High"
+        case .critical: return "Critical"
         }
     }
 
@@ -39,37 +30,28 @@ enum TaskPriority: Int, Equatable, Codable, CaseIterable, Comparable {
     }
 }
 
-// MARK: - Recurrence Rule (Повторение)
+// MARK: - Recurrence Rule
 
-/// Правило повторения задачи.
 enum RecurrenceRule: Equatable, Codable {
-    /// Повторение каждый год в определённую дату.
     case yearly(month: Int, day: Int)
 
-    /// Повторение каждый месяц в определённый день.
     case monthly(dayOfMonth: Int)
 
-    /// Повторение по дням недели (1 = Пн, ..., 7 = Вс).
     case weekly(daysOfWeek: [Int])
 }
 
-// MARK: - Reminder Settings (Настройки напоминаний)
+// MARK: - Reminder Settings
 
-/// Настройки напоминания для задачи.
 struct ReminderSettings: Equatable, Codable {
-    /// Дата начала отправки напоминаний.
     let startDate: Date
 
-    /// Интервал между напоминаниями (в секундах).
     let interval: TimeInterval
 
-    /// Активны ли напоминания.
     var isEnabled: Bool
 }
 
-// MARK: - Task Item (Доменная сущность задачи)
+// MARK: - Task Item
 
-/// Основная доменная модель задачи.
 struct TaskItem: Equatable, Identifiable, Codable {
     let id: String
     var title: String
@@ -79,9 +61,7 @@ struct TaskItem: Equatable, Identifiable, Codable {
     var createdAt: Date
     var dueDate: Date?
 
-    /// Настройки напоминания (опционально).
     var reminder: ReminderSettings?
 
-    /// Правило повторения (опционально).
     var recurrence: RecurrenceRule?
 }

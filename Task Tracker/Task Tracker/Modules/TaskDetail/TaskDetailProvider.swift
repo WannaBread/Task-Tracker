@@ -1,8 +1,3 @@
-//
-//  TaskDetailProvider.swift
-//  Task Tracker
-//
-
 import Foundation
 
 final class TaskDetailProvider: TaskDetailProviderProtocol {
@@ -23,7 +18,6 @@ final class TaskDetailProvider: TaskDetailProviderProtocol {
     }
 
     func deleteTask(id: String) async throws {
-        // Пустая реализация
     }
 
     func updateTask(request: UpdateTaskRequest) async throws -> TaskItem {

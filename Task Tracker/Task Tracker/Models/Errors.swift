@@ -1,10 +1,3 @@
-//
-//  Errors.swift
-//  Task Tracker
-//
-//  YARCH Architecture — Application Errors
-//
-
 import Foundation
 
 // MARK: - App Error
@@ -21,19 +14,19 @@ enum AppError: Error, Equatable {
     var localizedMessage: String {
         switch self {
         case .networkError(let msg):
-            return "Ошибка сети: \(msg)"
+            return "Network error: \(msg)"
         case .authFailed(let msg):
-            return "Ошибка авторизации: \(msg)"
+            return "Authentication failed: \(msg)"
         case .invalidCredentials:
-            return "Неверный email или пароль"
+            return "Invalid email or password"
         case .sessionExpired:
-            return "Сессия истекла. Войдите снова"
+            return "Session expired. Please log in again"
         case .notFound:
-            return "Данные не найдены"
+            return "Data not found"
         case .serverError(let msg):
-            return "Ошибка сервера: \(msg)"
+            return "Server error: \(msg)"
         case .unknown:
-            return "Неизвестная ошибка"
+            return "Unknown error"
         }
     }
 }

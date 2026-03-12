@@ -1,10 +1,3 @@
-//
-//  DTOs.swift
-//  Task Tracker
-//
-//  YARCH Architecture — Data Transfer Objects
-//
-
 import Foundation
 
 // MARK: - Auth DTOs
@@ -28,7 +21,6 @@ struct TaskDetailResponse: Equatable {
     let task: TaskItem
 }
 
-/// Запрос на создание задачи.
 struct CreateTaskRequest: Equatable {
     let title: String
     let description: String
@@ -38,7 +30,6 @@ struct CreateTaskRequest: Equatable {
     let recurrence: RecurrenceRule?
 }
 
-/// Запрос на обновление задачи.
 struct UpdateTaskRequest: Equatable {
     let id: String
     let title: String?

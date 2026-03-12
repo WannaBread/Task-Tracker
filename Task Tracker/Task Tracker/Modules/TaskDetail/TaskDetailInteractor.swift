@@ -1,8 +1,3 @@
-//
-//  TaskDetailInteractor.swift
-//  Task Tracker
-//
-
 import Foundation
 
 final class TaskDetailInteractor: TaskDetailBusinessLogic {
@@ -17,18 +12,14 @@ final class TaskDetailInteractor: TaskDetailBusinessLogic {
     }
 
     func fetchTask(request: TaskDetail.Fetch.Request) {
-        // TODO: реализация
     }
 
     func toggleCompletion(request: TaskDetail.ToggleCompletion.Request) {
-        // TODO: реализация
     }
 
     func deleteTask(request: TaskDetail.Delete.Request) {
-        // TODO: реализация
     }
 
     func updateTask(request: TaskDetail.Update.Request) {
-        // TODO: реализация
     }
 }

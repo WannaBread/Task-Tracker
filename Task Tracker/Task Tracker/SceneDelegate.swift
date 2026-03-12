@@ -1,10 +1,3 @@
-//
-//  SceneDelegate.swift
-//  Task Tracker
-//
-//  Created by Данила Мордвинцев on 04.03.2026.
-//
-
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {

@@ -1,10 +1,3 @@
-//
-//  TaskListContracts.swift
-//  Task Tracker
-//
-//  YARCH Architecture — TaskList Module Contracts
-//
-
 import UIKit
 
 // MARK: - TaskList Display Logic (Presenter → ViewController)

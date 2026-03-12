@@ -1,8 +1,3 @@
-//
-//  AuthView.swift
-//  Task Tracker
-//
-
 import UIKit
 
 final class AuthView: UIView {
@@ -11,7 +6,6 @@ final class AuthView: UIView {
     init(delegate: AuthViewDelegate?) {
         self.delegate = delegate
         super.init(frame: .zero)
-        // TODO: setupUI & layout
     }
 
     @available(*, unavailable)
@@ -20,6 +14,5 @@ final class AuthView: UIView {
     }
 
     func update(with state: AuthViewState) {
-        // Пустая реализация обновления UI
     }
 }

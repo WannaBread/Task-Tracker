@@ -1,10 +1,3 @@
-//
-//  ViewController.swift
-//  Task Tracker
-//
-//  Created by Данила Мордвинцев on 04.03.2026.
-//
-
 import UIKit
 
 class ViewController: UIViewController {

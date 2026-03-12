@@ -1,8 +1,3 @@
-//
-//  AuthViewController.swift
-//  Task Tracker
-//
-
 import UIKit
 
 final class AuthViewController: UIViewController, AuthDisplayLogic, AuthViewDelegate {
@@ -24,11 +19,9 @@ final class AuthViewController: UIViewController, AuthDisplayLogic, AuthViewDele
 
     // MARK: - AuthDisplayLogic
     func displayInitial(viewModel: Auth.LifeCycle.ViewModel) {
-        // Пустая реализация
     }
 
     func displayLogin(viewModel: Auth.Login.ViewModel) {
-        // Пустая реализация
     }
 
     // MARK: - AuthViewDelegate

@@ -1,8 +1,3 @@
-//
-//  TaskListProvider.swift
-//  Task Tracker
-//
-
 import Foundation
 
 final class TaskListProvider: TaskListProviderProtocol {
@@ -19,11 +14,9 @@ final class TaskListProvider: TaskListProviderProtocol {
     }
 
     func deleteTask(id: String) async throws {
-        // Пустая реализация
     }
 
     func toggleCompletion(id: String) async throws -> TaskItem {
-        // Ожидается реализация
         fatalError("Not implemented")
     }
 }

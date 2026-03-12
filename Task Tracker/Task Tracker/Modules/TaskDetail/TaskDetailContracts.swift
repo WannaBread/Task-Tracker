@@ -1,10 +1,3 @@
-//
-//  TaskDetailContracts.swift
-//  Task Tracker
-//
-//  YARCH Architecture — TaskDetail Module Contracts
-//
-
 import UIKit
 
 // MARK: - TaskDetail Display Logic (Presenter → ViewController)

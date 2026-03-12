@@ -1,10 +1,3 @@
-//
-//  TaskListDataFlow.swift
-//  Task Tracker
-//
-//  YARCH Architecture — TaskList Module DataFlow
-//
-
 import Foundation
 
 // MARK: - TaskList DataFlow

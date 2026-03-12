@@ -1,8 +1,3 @@
-//
-//  TaskListViewController.swift
-//  Task Tracker
-//
-
 import UIKit
 
 final class TaskListViewController: UIViewController, TaskListDisplayLogic, TaskListViewDelegate {

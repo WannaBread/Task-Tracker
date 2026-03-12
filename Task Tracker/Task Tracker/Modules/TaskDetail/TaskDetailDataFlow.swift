@@ -1,10 +1,3 @@
-//
-//  TaskDetailDataFlow.swift
-//  Task Tracker
-//
-//  YARCH Architecture — TaskDetail Module DataFlow
-//
-
 import Foundation
 
 // MARK: - TaskDetail DataFlow

@@ -1,18 +1,7 @@
-//
-//  AuthDataFlow.swift
-//  Task Tracker
-//
-//  YARCH Architecture — Auth Module DataFlow (DTO)
-//
-
 import Foundation
 
 // MARK: - Auth DataFlow
 
-/// DataFlow описывает объекты для передачи данных (DTO) внутри Use Case.
-/// Request — от ViewController к Interactor.
-/// Response — от Interactor к Presenter.
-/// ViewModel — от Presenter к ViewController.
 enum Auth {
 
     // MARK: - Life Cycle
@@ -47,8 +36,6 @@ enum Auth {
 
 // MARK: - Auth View State
 
-/// Состояние UI экрана авторизации.
-/// initial → loading → content / error
 struct AuthViewState: Equatable {
     var isLoading: Bool
     var errorText: String?

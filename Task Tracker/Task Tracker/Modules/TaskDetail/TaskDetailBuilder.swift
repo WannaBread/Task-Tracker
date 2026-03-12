@@ -1,8 +1,3 @@
-//
-//  TaskDetailBuilder.swift
-//  Task Tracker
-//
-
 import UIKit
 
 enum TaskDetailBuilder {

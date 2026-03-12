@@ -1,8 +1,3 @@
-//
-//  TaskListView.swift
-//  Task Tracker
-//
-
 import UIKit
 
 final class TaskListView: UIView {
@@ -11,7 +6,6 @@ final class TaskListView: UIView {
     init(delegate: TaskListViewDelegate?) {
         self.delegate = delegate
         super.init(frame: .zero)
-        // TODO: layout
     }
 
     @available(*, unavailable)
@@ -20,6 +14,5 @@ final class TaskListView: UIView {
     }
 
     func update(with state: TaskListViewState) {
-        // Пустая реализация
     }
 }

@@ -1,8 +1,3 @@
-//
-//  TaskListWorker.swift
-//  Task Tracker
-//
-
 import Foundation
 
 final class TaskListWorker {

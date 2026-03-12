@@ -1,10 +1,3 @@
-//
-//  AuthContracts.swift
-//  Task Tracker
-//
-//  YARCH Architecture — Auth Module Contracts
-//
-
 import UIKit
 
 // MARK: - Auth Display Logic (Presenter → ViewController)

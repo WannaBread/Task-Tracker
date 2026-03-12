@@ -1,8 +1,3 @@
-//
-//  AuthProvider.swift
-//  Task Tracker
-//
-
 import Foundation
 
 final class AuthProvider: AuthProviderProtocol {
@@ -15,11 +10,9 @@ final class AuthProvider: AuthProviderProtocol {
     }
 
     func login(email: String, password: String) async throws -> UserSession {
-        // TODO: реализация сетевого запроса и кэша
         return UserSession(token: "", userId: "", email: "")
     }
 
     func logout() {
-        // Пустая реализация
     }
 }
