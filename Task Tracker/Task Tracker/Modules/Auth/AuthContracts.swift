@@ -19,6 +19,7 @@ protocol AuthBusinessLogic {
 protocol AuthPresentationLogic {
     func presentInitial(response: Auth.LifeCycle.Response)
     func presentLogin(response: Auth.Login.Response)
+    func presentLoading()
 }
 
 // MARK: - Auth Routing Logic (Router)

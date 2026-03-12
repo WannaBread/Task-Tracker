@@ -18,13 +18,20 @@ final class AuthViewController: UIViewController, AuthDisplayLogic, AuthViewDele
     }
 
     // MARK: - AuthDisplayLogic
+
     func displayInitial(viewModel: Auth.LifeCycle.ViewModel) {
+        authView.update(with: viewModel.state)
     }
 
     func displayLogin(viewModel: Auth.Login.ViewModel) {
+        authView.update(with: viewModel.state)
+        if viewModel.state.isSuccess {
+            router?.navigateToTaskList()
+        }
     }
 
     // MARK: - AuthViewDelegate
+
     func authViewDidTapLogin(email: String?, password: String?) {
         let req = Auth.Login.Request(email: email ?? "", password: password ?? "")
         interactor?.login(request: req)

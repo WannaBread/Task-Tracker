@@ -15,6 +15,7 @@ enum AuthBuilder {
         interactor.presenter = presenter
         interactor.provider = provider
         interactor.worker = worker
+        interactor.router = router
 
         presenter.viewController = viewController
         router.viewController = viewController
