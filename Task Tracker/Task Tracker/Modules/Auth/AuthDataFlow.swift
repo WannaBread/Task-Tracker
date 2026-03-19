@@ -39,12 +39,16 @@ enum Auth {
 struct AuthViewState: Equatable {
     var isLoading: Bool
     var errorText: String?
+    var emailError: String?
+    var passwordError: String?
     var isLoginButtonEnabled: Bool
     var isSuccess: Bool
 
     static let initial = AuthViewState(
         isLoading: false,
         errorText: nil,
+        emailError: nil,
+        passwordError: nil,
         isLoginButtonEnabled: true,
         isSuccess: false
     )

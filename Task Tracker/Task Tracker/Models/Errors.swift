@@ -6,6 +6,7 @@ enum AppError: Error, Equatable {
     case networkError(String)
     case authFailed(String)
     case invalidCredentials
+    case validationFailed(emailError: String?, passwordError: String?)
     case sessionExpired
     case notFound
     case serverError(String)
@@ -19,6 +20,8 @@ enum AppError: Error, Equatable {
             return "Authentication failed: \(msg)"
         case .invalidCredentials:
             return "Invalid email or password"
+        case .validationFailed(let emailErr, let passwordErr):
+            return [emailErr, passwordErr].compactMap { $0 }.joined(separator: "\n")
         case .sessionExpired:
             return "Session expired. Please log in again"
         case .notFound:

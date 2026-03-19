@@ -14,16 +14,32 @@ final class AuthPresenter: AuthPresentationLogic {
             state = AuthViewState(
                 isLoading: false,
                 errorText: nil,
+                emailError: nil,
+                passwordError: nil,
                 isLoginButtonEnabled: true,
                 isSuccess: true
             )
         case .failure(let error):
-            state = AuthViewState(
-                isLoading: false,
-                errorText: error.localizedMessage,
-                isLoginButtonEnabled: true,
-                isSuccess: false
-            )
+            switch error {
+            case .validationFailed(let emailErr, let passwordErr):
+                state = AuthViewState(
+                    isLoading: false,
+                    errorText: nil,
+                    emailError: emailErr,
+                    passwordError: passwordErr,
+                    isLoginButtonEnabled: true,
+                    isSuccess: false
+                )
+            default:
+                state = AuthViewState(
+                    isLoading: false,
+                    errorText: error.localizedMessage,
+                    emailError: nil,
+                    passwordError: nil,
+                    isLoginButtonEnabled: true,
+                    isSuccess: false
+                )
+            }
         }
         viewController?.displayLogin(viewModel: Auth.Login.ViewModel(state: state))
     }
@@ -32,6 +48,8 @@ final class AuthPresenter: AuthPresentationLogic {
         let state = AuthViewState(
             isLoading: true,
             errorText: nil,
+            emailError: nil,
+            passwordError: nil,
             isLoginButtonEnabled: false,
             isSuccess: false
         )

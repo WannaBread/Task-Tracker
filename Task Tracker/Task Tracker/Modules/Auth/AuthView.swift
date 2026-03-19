@@ -3,6 +3,27 @@ import UIKit
 final class AuthView: UIView {
     weak var delegate: AuthViewDelegate?
 
+    // MARK: - Layout Constants
+
+    private enum Layout {
+        static let cornerRadius: CGFloat = 12
+        static let fieldHeight: CGFloat = 50
+        static let buttonHeight: CGFloat = 50
+        static let horizontalPadding: CGFloat = 24
+        static let fieldInnerPadding: CGFloat = 16
+        static let topPadding: CGFloat = 240
+        static let bottomPadding: CGFloat = 40
+        static let titleToSubtitleSpacing: CGFloat = 8
+        static let subtitleToEmailSpacing: CGFloat = 40
+        static let fieldToErrorSpacing: CGFloat = 4
+        static let emailErrorToPasswordSpacing: CGFloat = 12
+        static let passwordErrorToGeneralErrorSpacing: CGFloat = 16
+        static let generalErrorToButtonSpacing: CGFloat = 24
+        static let spinnerTrailingInset: CGFloat = 16
+        static let disabledAlpha: CGFloat = 0.6
+        static let fieldBorderWidth: CGFloat = 1.5
+    }
+
     // MARK: - UI Elements
 
     private let scrollView: UIScrollView = {
@@ -17,6 +38,15 @@ final class AuthView: UIView {
         let v = UIView()
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
+    }()
+
+    private let formStack: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 0
+        stack.alignment = .fill
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
     }()
 
     private let titleLabel: UILabel = {
@@ -37,25 +67,16 @@ final class AuthView: UIView {
         label.textColor = .secondaryLabel
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.accessibilityIdentifier = "auth_subtitle_label"
         return label
     }()
 
     private let emailTextField: UITextField = {
-        let tf = UITextField()
-        tf.placeholder = "Email"
-        tf.borderStyle = .none
+        let tf = makeStyledTextField(placeholder: "Email", identifier: "auth_email_field")
         tf.keyboardType = .emailAddress
         tf.autocapitalizationType = .none
         tf.autocorrectionType = .no
         tf.returnKeyType = .next
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.accessibilityIdentifier = "auth_email_field"
-        tf.backgroundColor = .secondarySystemBackground
-        tf.layer.cornerRadius = 12
-        tf.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
-        tf.leftViewMode = .always
-        tf.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
-        tf.rightViewMode = .always
         return tf
     }()
 
@@ -66,23 +87,14 @@ final class AuthView: UIView {
         label.numberOfLines = 0
         label.isHidden = true
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.accessibilityIdentifier = "auth_email_error_label"
         return label
     }()
 
     private let passwordTextField: UITextField = {
-        let tf = UITextField()
-        tf.placeholder = "Password"
-        tf.borderStyle = .none
+        let tf = makeStyledTextField(placeholder: "Password", identifier: "auth_password_field")
         tf.isSecureTextEntry = true
         tf.returnKeyType = .go
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.accessibilityIdentifier = "auth_password_field"
-        tf.backgroundColor = .secondarySystemBackground
-        tf.layer.cornerRadius = 12
-        tf.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
-        tf.leftViewMode = .always
-        tf.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 0))
-        tf.rightViewMode = .always
         return tf
     }()
 
@@ -93,6 +105,7 @@ final class AuthView: UIView {
         label.numberOfLines = 0
         label.isHidden = true
         label.translatesAutoresizingMaskIntoConstraints = false
+        label.accessibilityIdentifier = "auth_password_error_label"
         return label
     }()
 
@@ -114,7 +127,7 @@ final class AuthView: UIView {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .systemBlue
-        button.layer.cornerRadius = 12
+        button.layer.cornerRadius = Layout.cornerRadius
         button.translatesAutoresizingMaskIntoConstraints = false
         button.accessibilityIdentifier = "auth_login_button"
         return button
@@ -144,8 +157,21 @@ final class AuthView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    deinit {
-        NotificationCenter.default.removeObserver(self)
+    // MARK: - Factory Helpers
+
+    private static func makeStyledTextField(placeholder: String, identifier: String) -> UITextField {
+        let tf = UITextField()
+        tf.placeholder = placeholder
+        tf.borderStyle = .none
+        tf.translatesAutoresizingMaskIntoConstraints = false
+        tf.accessibilityIdentifier = identifier
+        tf.backgroundColor = .secondarySystemBackground
+        tf.layer.cornerRadius = Layout.cornerRadius
+        tf.leftView = UIView(frame: CGRect(x: 0, y: 0, width: Layout.fieldInnerPadding, height: 0))
+        tf.leftViewMode = .always
+        tf.rightView = UIView(frame: CGRect(x: 0, y: 0, width: Layout.fieldInnerPadding, height: 0))
+        tf.rightViewMode = .always
+        return tf
     }
 
     // MARK: - Layout
@@ -153,78 +179,61 @@ final class AuthView: UIView {
     private func setupLayout() {
         addSubview(scrollView)
         scrollView.addSubview(contentView)
-
-        contentView.addSubview(titleLabel)
-        contentView.addSubview(subtitleLabel)
-        contentView.addSubview(emailTextField)
-        contentView.addSubview(emailErrorLabel)
-        contentView.addSubview(passwordTextField)
-        contentView.addSubview(passwordErrorLabel)
-        contentView.addSubview(errorLabel)
-        contentView.addSubview(loginButton)
+        contentView.addSubview(formStack)
         loginButton.addSubview(spinner)
 
+        // Build the vertical form stack
+        formStack.addArrangedSubview(titleLabel)
+        formStack.setCustomSpacing(Layout.titleToSubtitleSpacing, after: titleLabel)
+
+        formStack.addArrangedSubview(subtitleLabel)
+        formStack.setCustomSpacing(Layout.subtitleToEmailSpacing, after: subtitleLabel)
+
+        formStack.addArrangedSubview(emailTextField)
+        formStack.setCustomSpacing(Layout.fieldToErrorSpacing, after: emailTextField)
+
+        formStack.addArrangedSubview(emailErrorLabel)
+        formStack.setCustomSpacing(Layout.emailErrorToPasswordSpacing, after: emailErrorLabel)
+
+        formStack.addArrangedSubview(passwordTextField)
+        formStack.setCustomSpacing(Layout.fieldToErrorSpacing, after: passwordTextField)
+
+        formStack.addArrangedSubview(passwordErrorLabel)
+        formStack.setCustomSpacing(Layout.passwordErrorToGeneralErrorSpacing, after: passwordErrorLabel)
+
+        formStack.addArrangedSubview(errorLabel)
+        formStack.setCustomSpacing(Layout.generalErrorToButtonSpacing, after: errorLabel)
+
+        formStack.addArrangedSubview(loginButton)
+
         NSLayoutConstraint.activate([
-            // ScrollView
+            // ScrollView → fills the safe area
             scrollView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            // Content view
+            // Content view → fills scrollView, matches width
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
-            // Title
-            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 60),
-            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            // Form stack → centered with horizontal padding
+            formStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Layout.topPadding),
+            formStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Layout.horizontalPadding),
+            formStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Layout.horizontalPadding),
+            formStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Layout.bottomPadding),
 
-            // Subtitle
-            subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-            subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
+            // Fixed heights for text fields and button
+            emailTextField.heightAnchor.constraint(equalToConstant: Layout.fieldHeight),
+            passwordTextField.heightAnchor.constraint(equalToConstant: Layout.fieldHeight),
+            loginButton.heightAnchor.constraint(equalToConstant: Layout.buttonHeight),
 
-            // Email
-            emailTextField.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 40),
-            emailTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            emailTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            emailTextField.heightAnchor.constraint(equalToConstant: 50),
-
-            // Email error
-            emailErrorLabel.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 4),
-            emailErrorLabel.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor, constant: 4),
-            emailErrorLabel.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
-
-            // Password
-            passwordTextField.topAnchor.constraint(equalTo: emailErrorLabel.bottomAnchor, constant: 12),
-            passwordTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            passwordTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            passwordTextField.heightAnchor.constraint(equalToConstant: 50),
-
-            // Password error
-            passwordErrorLabel.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 4),
-            passwordErrorLabel.leadingAnchor.constraint(equalTo: passwordTextField.leadingAnchor, constant: 4),
-            passwordErrorLabel.trailingAnchor.constraint(equalTo: passwordTextField.trailingAnchor),
-
-            // Error label
-            errorLabel.topAnchor.constraint(equalTo: passwordErrorLabel.bottomAnchor, constant: 16),
-            errorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            errorLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-
-            // Login button
-            loginButton.topAnchor.constraint(equalTo: errorLabel.bottomAnchor, constant: 24),
-            loginButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
-            loginButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            loginButton.heightAnchor.constraint(equalToConstant: 50),
-            loginButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -40),
-
-            // Spinner
+            // Spinner inside button
             spinner.centerYAnchor.constraint(equalTo: loginButton.centerYAnchor),
-            spinner.trailingAnchor.constraint(equalTo: loginButton.trailingAnchor, constant: -16),
+            spinner.trailingAnchor.constraint(equalTo: loginButton.trailingAnchor, constant: -Layout.spinnerTrailingInset),
         ])
     }
 
@@ -290,7 +299,7 @@ final class AuthView: UIView {
 
     func update(with state: AuthViewState) {
         loginButton.isEnabled = state.isLoginButtonEnabled
-        loginButton.alpha = state.isLoginButtonEnabled ? 1.0 : 0.6
+        loginButton.alpha = state.isLoginButtonEnabled ? 1.0 : Layout.disabledAlpha
 
         if state.isLoading {
             spinner.startAnimating()
@@ -300,31 +309,34 @@ final class AuthView: UIView {
             loginButton.setTitle("Sign In", for: .normal)
         }
 
-        if let error = state.errorText {
-            if error.contains("email") || error.contains("Email") {
-                showFieldError(for: emailTextField, label: emailErrorLabel, message: "Enter a valid email")
-            }
-            if error.contains("Password") || error.contains("password") || error.contains("6 characters") {
-                showFieldError(for: passwordTextField, label: passwordErrorLabel, message: "Min. 6 characters")
-            }
-
-            if error.contains("Invalid email or password") ||
-                error.contains("Authentication failed") ||
-                error.contains("Unknown error") {
-                errorLabel.text = error
-                errorLabel.isHidden = false
-            }
+        // Update email field error only if changed
+        if let emailErr = state.emailError {
+            showFieldError(for: emailTextField, label: emailErrorLabel, message: emailErr)
         } else {
-            errorLabel.isHidden = true
             clearFieldError(for: emailTextField)
+        }
+
+        // Update password field error only if changed
+        if let passwordErr = state.passwordError {
+            showFieldError(for: passwordTextField, label: passwordErrorLabel, message: passwordErr)
+        } else {
             clearFieldError(for: passwordTextField)
+        }
+
+        // Show or hide general error
+        if let error = state.errorText {
+            errorLabel.text = error
+            errorLabel.isHidden = false
+        } else {
+            errorLabel.text = nil
+            errorLabel.isHidden = true
         }
     }
 
     // MARK: - Field Validation Helpers
 
     private func showFieldError(for field: UITextField, label: UILabel, message: String) {
-        field.layer.borderWidth = 1.5
+        field.layer.borderWidth = Layout.fieldBorderWidth
         field.layer.borderColor = UIColor.systemRed.cgColor
         label.text = message
         label.isHidden = false
@@ -334,8 +346,10 @@ final class AuthView: UIView {
         textField.layer.borderWidth = 0
         textField.layer.borderColor = nil
         if textField === emailTextField {
+            emailErrorLabel.text = nil
             emailErrorLabel.isHidden = true
         } else if textField === passwordTextField {
+            passwordErrorLabel.text = nil
             passwordErrorLabel.isHidden = true
         }
     }

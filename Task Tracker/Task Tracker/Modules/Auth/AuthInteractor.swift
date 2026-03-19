@@ -17,11 +17,11 @@ final class AuthInteractor: AuthBusinessLogic {
         let isPasswordValid = worker.validate(password: request.password)
 
         guard isEmailValid, isPasswordValid else {
-            var messages: [String] = []
-            if !isEmailValid { messages.append("Enter a valid email") }
-            if !isPasswordValid { messages.append("Password must be at least 6 characters") }
-            let errorText = messages.joined(separator: "\n")
-            let response = Auth.Login.Response(result: .failure(.authFailed(errorText)))
+            let emailErr = isEmailValid ? nil : "Enter a valid email"
+            let passwordErr = isPasswordValid ? nil : "Password must be at least 6 characters"
+            let response = Auth.Login.Response(
+                result: .failure(.validationFailed(emailError: emailErr, passwordError: passwordErr))
+            )
             presenter?.presentLogin(response: response)
             return
         }
