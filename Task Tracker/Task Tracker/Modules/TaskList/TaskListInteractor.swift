@@ -105,10 +105,4 @@ final class TaskListInteractor: TaskListBusinessLogic {
             }
         }
     }
-
-    // MARK: - Create
-
-    func didTapCreateTask(request: TaskList.CreateTask.Request) {
-        // Navigation is delegated to the router via the ViewController.
-    }
 }
