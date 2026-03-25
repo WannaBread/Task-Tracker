@@ -36,6 +36,12 @@ final class AuthPresenter: AuthPresentationLogic {
         viewController?.displayLogin(viewModel: Auth.Login.ViewModel(state: state))
     }
 
+    func presentFieldValidation(response: Auth.Validate.Response) {
+        viewController?.displayFieldValidation(
+            viewModel: Auth.Validate.ViewModel(field: response.field, error: response.error)
+        )
+    }
+
     func presentLoading() {
         let state = AuthViewState(
             isLoading: true,

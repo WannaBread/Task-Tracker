@@ -10,6 +10,18 @@ final class AuthInteractor: AuthBusinessLogic {
         presenter?.presentInitial(response: Auth.LifeCycle.Response())
     }
 
+    func validate(request: Auth.Validate.Request) {
+        guard let worker else { return }
+        let error: String?
+        switch request.field {
+        case .email:
+            error = worker.validate(email: request.text) ? nil : "Enter a valid email"
+        case .password:
+            error = worker.validate(password: request.text) ? nil : "Password must be at least 6 characters"
+        }
+        presenter?.presentFieldValidation(response: Auth.Validate.Response(field: request.field, error: error))
+    }
+
     func login(request: Auth.Login.Request) {
         guard let worker = worker else { return }
 

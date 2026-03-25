@@ -16,6 +16,27 @@ enum Auth {
         }
     }
 
+    // MARK: - Validate Use Case (real-time debounced)
+
+    enum Validate {
+        enum Field { case email, password }
+
+        struct Request {
+            let field: Field
+            let text: String
+        }
+
+        struct Response {
+            let field: Field
+            let error: String?
+        }
+
+        struct ViewModel {
+            let field: Field
+            let error: String?
+        }
+    }
+
     // MARK: - Login Use Case
 
     enum Login {

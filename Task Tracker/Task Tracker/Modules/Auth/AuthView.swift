@@ -3,6 +3,9 @@ import UIKit
 final class AuthView: UIView {
     weak var delegate: AuthViewDelegate?
 
+    private var emailDebounceWork: DispatchWorkItem?
+    private var passwordDebounceWork: DispatchWorkItem?
+
     // MARK: - Layout Constants
 
     private enum Layout {
@@ -182,7 +185,6 @@ final class AuthView: UIView {
         contentView.addSubview(formStack)
         loginButton.addSubview(spinner)
 
-        // Build the vertical form stack
         formStack.addArrangedSubview(titleLabel)
         formStack.setCustomSpacing(Layout.titleToSubtitleSpacing, after: titleLabel)
 
@@ -207,31 +209,26 @@ final class AuthView: UIView {
         formStack.addArrangedSubview(loginButton)
 
         NSLayoutConstraint.activate([
-            // ScrollView → fills the safe area
             scrollView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            // Content view → fills scrollView, matches width
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
             contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
-            // Form stack → centered with horizontal padding
             formStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Layout.topPadding),
             formStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Layout.horizontalPadding),
             formStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Layout.horizontalPadding),
             formStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Layout.bottomPadding),
 
-            // Fixed heights for text fields and button
             emailTextField.heightAnchor.constraint(equalToConstant: Layout.fieldHeight),
             passwordTextField.heightAnchor.constraint(equalToConstant: Layout.fieldHeight),
             loginButton.heightAnchor.constraint(equalToConstant: Layout.buttonHeight),
 
-            // Spinner inside button
             spinner.centerYAnchor.constraint(equalTo: loginButton.centerYAnchor),
             spinner.trailingAnchor.constraint(equalTo: loginButton.trailingAnchor, constant: -Layout.spinnerTrailingInset),
         ])
@@ -265,6 +262,24 @@ final class AuthView: UIView {
 
     @objc private func textFieldDidChange(_ textField: UITextField) {
         clearFieldError(for: textField)
+
+        if textField === emailTextField {
+            emailDebounceWork?.cancel()
+            let work = DispatchWorkItem { [weak self] in
+                guard let self else { return }
+                self.delegate?.authViewDidChangeEmail(self.emailTextField.text ?? "")
+            }
+            emailDebounceWork = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
+        } else if textField === passwordTextField {
+            passwordDebounceWork?.cancel()
+            let work = DispatchWorkItem { [weak self] in
+                guard let self else { return }
+                self.delegate?.authViewDidChangePassword(self.passwordTextField.text ?? "")
+            }
+            passwordDebounceWork = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
+        }
     }
 
     // MARK: - Keyboard Handling
@@ -309,27 +324,42 @@ final class AuthView: UIView {
             loginButton.setTitle("Sign In", for: .normal)
         }
 
-        // Update email field error only if changed
         if let emailErr = state.emailError {
             showFieldError(for: emailTextField, label: emailErrorLabel, message: emailErr)
         } else {
             clearFieldError(for: emailTextField)
         }
 
-        // Update password field error only if changed
         if let passwordErr = state.passwordError {
             showFieldError(for: passwordTextField, label: passwordErrorLabel, message: passwordErr)
         } else {
             clearFieldError(for: passwordTextField)
         }
 
-        // Show or hide general error
         if let error = state.errorText {
             errorLabel.text = error
             errorLabel.isHidden = false
         } else {
             errorLabel.text = nil
             errorLabel.isHidden = true
+        }
+    }
+
+    // MARK: - Field Validation (real-time)
+
+    func updateEmailValidation(error: String?) {
+        if let err = error {
+            showFieldError(for: emailTextField, label: emailErrorLabel, message: err)
+        } else {
+            clearFieldError(for: emailTextField)
+        }
+    }
+
+    func updatePasswordValidation(error: String?) {
+        if let err = error {
+            showFieldError(for: passwordTextField, label: passwordErrorLabel, message: err)
+        } else {
+            clearFieldError(for: passwordTextField)
         }
     }
 
