@@ -25,9 +25,10 @@ final class AuthViewController: UIViewController, AuthDisplayLogic, AuthViewDele
 
     func displayLogin(viewModel: Auth.Login.ViewModel) {
         authView.update(with: viewModel.state)
-        if viewModel.state.isSuccess {
-            router?.navigateToTaskList()
-        }
+    }
+
+    func displayLoginSuccess() {
+        router?.navigateToTaskList()
     }
 
     // MARK: - AuthViewDelegate

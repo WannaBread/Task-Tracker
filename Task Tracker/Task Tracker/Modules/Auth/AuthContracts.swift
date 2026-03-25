@@ -5,6 +5,7 @@ import UIKit
 protocol AuthDisplayLogic: AnyObject {
     func displayInitial(viewModel: Auth.LifeCycle.ViewModel)
     func displayLogin(viewModel: Auth.Login.ViewModel)
+    func displayLoginSuccess()
 }
 
 // MARK: - Auth Business Logic (ViewController → Interactor)

@@ -42,14 +42,12 @@ struct AuthViewState: Equatable {
     var emailError: String?
     var passwordError: String?
     var isLoginButtonEnabled: Bool
-    var isSuccess: Bool
 
     static let initial = AuthViewState(
         isLoading: false,
         errorText: nil,
         emailError: nil,
         passwordError: nil,
-        isLoginButtonEnabled: true,
-        isSuccess: false
+        isLoginButtonEnabled: true
     )
 }
