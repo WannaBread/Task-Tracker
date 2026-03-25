@@ -10,13 +10,19 @@ final class TaskListProvider: TaskListProviderProtocol {
     }
 
     func fetchTasks() async throws -> [TaskItem] {
-        return []
+        let response = try await taskService.fetchTasks()
+        taskDataStore.tasks = response.tasks
+        return response.tasks
     }
 
     func deleteTask(id: String) async throws {
+        try await taskService.deleteTask(by: id)
+        taskDataStore.remove(taskId: id)
     }
 
     func toggleCompletion(id: String) async throws -> TaskItem {
-        fatalError("Not implemented")
+        let updated = try await taskService.toggleCompletion(taskId: id)
+        taskDataStore.update(task: updated)
+        return updated
     }
 }
