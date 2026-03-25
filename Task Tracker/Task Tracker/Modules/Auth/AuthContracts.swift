@@ -5,6 +5,8 @@ import UIKit
 protocol AuthDisplayLogic: AnyObject {
     func displayInitial(viewModel: Auth.LifeCycle.ViewModel)
     func displayLogin(viewModel: Auth.Login.ViewModel)
+    func displayLoginSuccess()
+    func displayFieldValidation(viewModel: Auth.Validate.ViewModel)
 }
 
 // MARK: - Auth Business Logic (ViewController → Interactor)
@@ -12,6 +14,7 @@ protocol AuthDisplayLogic: AnyObject {
 protocol AuthBusinessLogic {
     func didLoad(request: Auth.LifeCycle.Request)
     func login(request: Auth.Login.Request)
+    func validate(request: Auth.Validate.Request)
 }
 
 // MARK: - Auth Presentation Logic (Interactor → Presenter)
@@ -19,6 +22,8 @@ protocol AuthBusinessLogic {
 protocol AuthPresentationLogic {
     func presentInitial(response: Auth.LifeCycle.Response)
     func presentLogin(response: Auth.Login.Response)
+    func presentLoading()
+    func presentFieldValidation(response: Auth.Validate.Response)
 }
 
 // MARK: - Auth Routing Logic (Router)
@@ -38,4 +43,6 @@ protocol AuthProviderProtocol {
 
 protocol AuthViewDelegate: AnyObject {
     func authViewDidTapLogin(email: String?, password: String?)
+    func authViewDidChangeEmail(_ email: String)
+    func authViewDidChangePassword(_ password: String)
 }

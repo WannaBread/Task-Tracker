@@ -1,58 +1,67 @@
 # Task Tracker
 
-## Архитектура
-Выбрана **YARCH**
+## How to Run
 
-**Обоснование:**
-- Сборка и зависимости вынесены в `Builder`, гарантируя слабую связность компонент и внедрение зависимостей. 
-- Наличие `Provider` разгружает `Interactor` от прямого взаимодействия к сетью или кэшем. 
-- Вычислительная логика (валидация, фильтры) инкапсулируется в независимые сущности `Worker`. 
-- Переходы между модулями осуществляются только через идентификаторы (ID), а данные переиспользуются через общие `DataStore`, что предотвращает передачу тяжеловесных моделей через Router.
+1. Open `Task Tracker/Task Tracker.xcodeproj` in Xcode
+2. Select any iPhone simulator (tested on iPhone SE and iPhone 16)
+3. Press **Cmd+R** to build and run
 
-## Модули и ответственности
-1. **Auth** — Экран авторизации пользователя: валидация ввода, создание тестовой сессии.
-2. **TaskList** — Экран списка задач: загрузка, удаление, изменение статуса выполнения, фильтрация.
-3. **TaskDetail** — Экран деталей задачи: просмотр, создание и редактирование параметров задачи (приоритет, напоминания, повторения).
+## Auth Credentials
 
-## Экраны
-### 1. Auth (Авторизация)
-*   **Вход:** нет, стартовый экран.
-*   **Выход:** Успешная валидация, создание `UserSession` и роутинг на список задач.
-*   **Сценарии:**
-    *   Пользователь вводит данные, `Worker` их валидирует.
-    *   Запрос на сервер/дб через `Provider`.
-    *   Сохранение сессии в общий `SessionDataStore`.
-    *   Переход на основное флоу.
+| Field    | Value              |
+|----------|--------------------|
+| Email    | `admin@task.app`   |
+| Password | `password123`      |
 
-### 2. TaskList (Список задач)
-*   **Вход:** Наличие активной `UserSession`.
-*   **Выход:** Передача `taskId` выбранной задачи в `Router` для перехода к деталям.
-*   **Сценарии:**
-    *   Слой View (TableView) получает список `ViewModel` от `Presenter` и отображает `TaskListViewState`.
-    *   Нажатие (Select) или Свайп (Delete) пробрасываются контроллером в `Interactor`.
-    *   `Provider` обновляет данные, и обновленный массив попадает обратно во View.
-    *   По нажатию на добавление вызывается `Router`.
+- **Invalid credentials** → inline error message is displayed
+- **Valid credentials** → loading indicator, then navigates to the Task List screen
 
-### 3. TaskDetail (Детальный экран задачи)
-*   **Вход:** Получение `taskId` от Router-а предыдущего экрана.
-*   **Выход:** Сохранение состояния и вызов `Router.navigateBack()` (возврат на экран списка).
-*   **Сценарии:**
-    *   Экран инициализируется `Builder`-ом с передачей `taskId`.
-    *   `Provider` забирает полную модель из общего кэша `TaskDataStore` по `taskId` без лишних походов в сеть.
-    *   Форматирование дат и приоритетов для UI через `Presenter`.
-    *   Редактирование полей, валидация текста через `Worker`, сохранение в базу.
+## Architecture
 
-## Ключевые протоколы и модели
+**YARCH** (Yet Another Router / Clean Handler architecture)
 
-**Протоколы:**
-*   `BusinessLogic` — логика слоев модулей (вынесена из контроллера в Interactor).
-*   `PresentationLogic` — подготовка `ViewModel` для показа во View (Presenter).
-*   `DisplayLogic` — сигналы к обновлению состояний (ViewController).
-*   `ProviderProtocol` — контракт доступа к данным, объединяющий `Service` + `DataStore`.
+**Rationale:**
+- Builder + DI: assembly and dependencies are managed in `Builder`, ensuring loose coupling and dependency injection
+- Provider layer offloads Interactor from direct network/cache interaction
+- Worker encapsulates computational logic (validation, filtering) into independent units
+- Inter-module navigation via Router uses identifiers (IDs); shared data is accessed through DataStores
 
-**Модели:**
-*   `TaskItem` — доменная сущность задачи.
-*   `TaskPriority` — важность (Enum).
-*   `ReminderSettings` — конфигурация напоминаний (дата старта и интервал).
-*   `RecurrenceRule` — правила периодичности (год/месяц/неделя).
-*   Контейнеры `DataFlow` — `Request`, `Response`, `ViewModel` для обмена данными.
+## Modules
+
+| Module       | Description                                                            |
+|--------------|------------------------------------------------------------------------|
+| **Auth**     | Login screen: input validation, service call, session creation, routing |
+| **TaskList** | Task list: loading, deletion, completion toggle, filtering             |
+| **TaskDetail**| Task details: view, create, edit (priority, reminders, recurrence)    |
+
+## Screens
+
+### 1. Auth
+- **Entry:** app launch (root screen)
+- **Exit:** successful login → navigates to TaskList
+- **Flow:** User enters credentials → Worker validates format → Provider calls AuthService → Session saved to SessionDataStore → Router replaces root with TaskList
+
+### 2. TaskList
+- **Entry:** active UserSession required
+- **Exit:** passes `taskId` to Router for navigation to TaskDetail
+- **Flow:** View displays TaskListViewState via Presenter. Select/Swipe actions forwarded to Interactor → Provider updates data → View refreshes
+
+### 3. TaskDetail
+- **Entry:** receives `taskId` from TaskList Router
+- **Exit:** saves state, Router navigates back to TaskList
+- **Flow:** Builder injects `taskId` → Provider fetches from TaskDataStore → Presenter formats dates/priorities → Worker validates edits → Provider saves
+
+## Key Protocols & Models
+
+**Protocols:**
+- `BusinessLogic` — module business logic (Interactor)
+- `PresentationLogic` — ViewModel preparation (Presenter)
+- `DisplayLogic` — UI state updates (ViewController)
+- `ProviderProtocol` — data access contract (Service + DataStore)
+
+**Models:**
+- `TaskItem` — core task entity
+- `TaskPriority` — importance level (Enum)
+- `ReminderSettings` — reminder configuration (start date + interval)
+- `RecurrenceRule` — recurrence rules (yearly / monthly / weekly)
+- `DataFlow` containers — `Request`, `Response`, `ViewModel` for inter-layer data exchange

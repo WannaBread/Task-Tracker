@@ -8,5 +8,48 @@ final class AuthPresenter: AuthPresentationLogic {
     }
 
     func presentLogin(response: Auth.Login.Response) {
+        let state: AuthViewState
+        switch response.result {
+        case .success:
+            viewController?.displayLoginSuccess()
+            return
+        case .failure(let error):
+            switch error {
+            case .validationFailed(let emailErr, let passwordErr):
+                state = AuthViewState(
+                    isLoading: false,
+                    errorText: nil,
+                    emailError: emailErr,
+                    passwordError: passwordErr,
+                    isLoginButtonEnabled: true
+                )
+            default:
+                state = AuthViewState(
+                    isLoading: false,
+                    errorText: error.localizedMessage,
+                    emailError: nil,
+                    passwordError: nil,
+                    isLoginButtonEnabled: true
+                )
+            }
+        }
+        viewController?.displayLogin(viewModel: Auth.Login.ViewModel(state: state))
+    }
+
+    func presentFieldValidation(response: Auth.Validate.Response) {
+        viewController?.displayFieldValidation(
+            viewModel: Auth.Validate.ViewModel(field: response.field, error: response.error)
+        )
+    }
+
+    func presentLoading() {
+        let state = AuthViewState(
+            isLoading: true,
+            errorText: nil,
+            emailError: nil,
+            passwordError: nil,
+            isLoginButtonEnabled: false
+        )
+        viewController?.displayLogin(viewModel: Auth.Login.ViewModel(state: state))
     }
 }
