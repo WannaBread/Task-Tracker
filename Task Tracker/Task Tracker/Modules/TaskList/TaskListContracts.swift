@@ -14,7 +14,6 @@ protocol TaskListBusinessLogic {
     func fetchTasks(request: TaskList.Fetch.Request)
     func deleteTask(request: TaskList.Delete.Request)
     func toggleCompletion(request: TaskList.ToggleCompletion.Request)
-    func didTapCreateTask(request: TaskList.CreateTask.Request)
 }
 
 // MARK: - TaskList Presentation Logic (Interactor → Presenter)

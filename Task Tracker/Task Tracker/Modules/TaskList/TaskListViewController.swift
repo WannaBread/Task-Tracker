@@ -24,7 +24,7 @@ final class TaskListViewController: UIViewController, TaskListDisplayLogic, Task
 
     // MARK: - TaskListViewDelegate
     func taskListViewDidSelectTask(at index: Int) {
-        interactor?.selectTask(request: TaskList.SelectTask.Request(index: index))
+        // route to next screen
     }
     func taskListViewDidDeleteTask(at index: Int) {
         interactor?.deleteTask(request: TaskList.Delete.Request(index: index))
