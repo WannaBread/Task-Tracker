@@ -12,15 +12,14 @@ protocol TaskListDisplayLogic: AnyObject {
 
 protocol TaskListBusinessLogic {
     func fetchTasks(request: TaskList.Fetch.Request)
-    func selectTask(request: TaskList.SelectTask.Request)
     func deleteTask(request: TaskList.Delete.Request)
     func toggleCompletion(request: TaskList.ToggleCompletion.Request)
-    func didTapCreateTask(request: TaskList.CreateTask.Request)
 }
 
 // MARK: - TaskList Presentation Logic (Interactor → Presenter)
 
 protocol TaskListPresentationLogic {
+    func presentLoading()
     func presentTasks(response: TaskList.Fetch.Response)
     func presentDelete(response: TaskList.Delete.Response)
     func presentToggle(response: TaskList.ToggleCompletion.Response)

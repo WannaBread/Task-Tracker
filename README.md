@@ -65,3 +65,96 @@
 - `ReminderSettings` — reminder configuration (start date + interval)
 - `RecurrenceRule` — recurrence rules (yearly / monthly / weekly)
 - `DataFlow` containers — `Request`, `Response`, `ViewModel` for inter-layer data exchange
+
+---
+
+## Лабораторная №4
+
+### API
+
+**Alfa ITMO Echo API** — `https://alfaitmo.ru/server/echo/409172/todos`
+
+Endpoint: `GET https://alfaitmo.ru/server/echo/409172/todos`
+
+Пример ответа (массив на верхнем уровне):
+
+```json
+[
+  {
+    "id": "1",
+    "title": "Подготовить презентацию",
+    "taskDescription": "Для защиты лабораторной работы",
+    "priority": 2,
+    "isCompleted": false,
+    "dueDate": "2026-03-28",
+    "reminder": {
+      "startDate": "2026-03-28",
+      "interval": 3600,
+      "isEnabled": true
+    },
+    "recurrence": null
+  },
+  {
+    "id": "2",
+    "title": "Написать unit-тесты",
+    "taskDescription": "Покрыть Interactor и Presenter",
+    "priority": 1,
+    "isCompleted": true,
+    "dueDate": "2026-03-25",
+    "reminder": null,
+    "recurrence": {
+      "type": "weekly",
+      "daysOfWeek": [1, 3, 5],
+      "dayOfMonth": null,
+      "month": null,
+      "day": null
+    }
+  }
+]
+```
+
+Данные залиты через `PUT`. DTO — `TaskItemDTO` (`Models/TodoDTO.swift`).
+
+### Поля в TaskListItemViewModel
+
+| Поле | Откуда берётся |
+|---|---|
+| `id` | `TaskItemDTO.id` |
+| `title` | `TaskItemDTO.title` |
+| `priorityText` | `TaskItemDTO.priority` (0–3) → `TaskPriority.title` ("Low"/"Medium"/"High"/"Critical") |
+| `dueDateText` | `TaskItemDTO.dueDate` ("yyyy-MM-dd") → форматированная строка или `nil` |
+| `isCompleted` | `TaskItemDTO.isCompleted` |
+| `hasReminder` | `TaskItemDTO.reminder != nil` |
+| `hasRecurrence` | `TaskItemDTO.recurrence != nil` |
+
+### Как проверить
+
+1. Собрать и запустить проект в Xcode (симулятор)
+2. Залогиниться: `admin@task.app` / `password123`
+3. После успешного логина открывается экран TaskList — в это момент Interactor вызывает `fetchTasks`
+
+## Допы
+
+### D1 — Своя модель ошибок
+
+Реализован тип `NetworkError` (`Networking/NetworkError.swift`) со случаями:
+- `.badURL` — невалидный URL
+- `.requestFailed(statusCode:)` — HTTP-ошибка не 2xx
+- `.noData` — пустой ответ
+- `.decodingFailed(Error)` — ошибка парсинга
+- `.cancelled` — запрос отменён
+- `.underlying(Error)` — прочие сетевые ошибки
+
+### D2 — Отмена запроса
+
+В `TaskListInteractor` хранится `private var fetchTask: Task<Void, Never>?`. При каждом вызове `fetchTasks` предыдущий Task отменяется (`fetchTask?.cancel()`), результат старого запроса игнорируется через `guard !Task.isCancelled`. 
+
+### D3 — Локальный fallback для отладки
+
+В `Networking/NetworkConfig.swift` есть флаг:
+
+```swift
+static let useLocalFallback: Bool = false
+```
+
+При значении `true` вместо URLSession используется `BundleNetworkClient`, который читает `todos.json`

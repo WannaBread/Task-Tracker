@@ -7,7 +7,7 @@ final class AuthRouter: AuthRoutingLogic {
         guard let scene = viewController?.view.window?.windowScene,
               let window = scene.windows.first else { return }
 
-        let taskListVC = TaskListBuilder.build(taskService: MockTaskService())
+        let taskListVC = TaskListBuilder.build(taskService: EchoAPIService())
         let nav = UINavigationController(rootViewController: taskListVC)
         taskListVC.title = "Tasks"
 
