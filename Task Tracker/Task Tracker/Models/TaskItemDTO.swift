@@ -2,8 +2,7 @@ import Foundation
 
 // MARK: - TaskItemDTO
 
-/// Codable DTO для элемента списка задач, получаемого с сервера.
-/// Endpoint: GET https://alfaitmo.ru/server/echo/409172/todos
+
 struct TaskItemDTO: Codable, Sendable {
     let id: String
     let title: String
@@ -13,8 +12,6 @@ struct TaskItemDTO: Codable, Sendable {
     let dueDate: String?       // "yyyy-MM-dd"
     let reminder: ReminderDTO?
     let recurrence: RecurrenceDTO?
-
-    // MARK: - Nested DTOs
 
     struct ReminderDTO: Codable, Sendable {
         let startDate: String  // "yyyy-MM-dd"

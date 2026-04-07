@@ -3,7 +3,7 @@ import Foundation
 // MARK: - NetworkClientProtocol
 
 protocol NetworkClientProtocol {
-    nonisolated func fetch<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T
+    func fetch<T: Decodable & Sendable>(_ type: T.Type, from url: URL) async throws -> T
 }
 
 // MARK: - URLSessionNetworkClient
@@ -15,7 +15,7 @@ final class URLSessionNetworkClient: NetworkClientProtocol {
         self.session = session
     }
 
-    nonisolated func fetch<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T {
+    func fetch<T: Decodable & Sendable>(_ type: T.Type, from url: URL) async throws -> T {
         let data: Data
         let response: URLResponse
 
@@ -55,7 +55,7 @@ final class BundleNetworkClient: NetworkClientProtocol {
         self.decoder = decoder
     }
 
-    nonisolated func fetch<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T {
+    func fetch<T: Decodable & Sendable>(_ type: T.Type, from url: URL) async throws -> T {
         // Derive the resource name from the URL path (e.g. ".../todos" → "todos").
         let fileName = url.deletingPathExtension().lastPathComponent
 
