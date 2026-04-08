@@ -30,6 +30,11 @@ final class TaskListViewController: UIViewController, TaskListDisplayLogic, Task
         navigationItem.searchController = searchController
         navigationItem.hidesSearchBarWhenScrolling = false
         definesPresentationContext = true
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .add,
+            target: self,
+            action: #selector(createTaskTapped)
+        )
         interactor?.fetchTasks(request: TaskList.Fetch.Request())
     }
 
@@ -77,6 +82,12 @@ final class TaskListViewController: UIViewController, TaskListDisplayLogic, Task
 
     func taskListViewDidRequestRefresh() {
         interactor?.fetchTasks(request: TaskList.Fetch.Request())
+    }
+
+    // MARK: - Actions
+
+    @objc private func createTaskTapped() {
+        router?.navigateToCreateTask()
     }
 }
 
