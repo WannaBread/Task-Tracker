@@ -34,8 +34,8 @@ final class TaskListTableManager: NSObject {
 
     // MARK: - Search (D2)
 
-    func filter(by query: String, in tableView: UITableView? = nil) {
-        searchQuery = query
+    func filter(by query: String?, in tableView: UITableView? = nil) {
+        searchQuery = query ?? ""
         if let tableView {
             applyFilter(in: tableView)
         }

@@ -84,7 +84,7 @@ final class TaskListViewController: UIViewController, TaskListDisplayLogic, Task
 
 extension TaskListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
-        let query = searchController.searchBar.text ?? ""
+        let query = searchController.searchBar.text
         taskListView.tableManager.filter(by: query, in: taskListView.internalTableView)
     }
 }
