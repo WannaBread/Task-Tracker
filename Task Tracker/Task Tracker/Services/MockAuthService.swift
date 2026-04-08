@@ -2,8 +2,8 @@ import Foundation
 
 final class MockAuthService: AuthServiceProtocol {
 
-    private let validEmail = "admin@task.app"
-    private let validPassword = "password123"
+    private let validEmail = "admin@app.app"
+    private let validPassword = "12345678"
 
     func login(request: LoginRequest) async throws -> LoginResponse {
         try await Task.sleep(nanoseconds: 1_000_000_000)
