@@ -18,6 +18,7 @@ enum TaskListBuilder {
 
         presenter.viewController = viewController
         router.viewController = viewController
+        router.taskService = taskService
 
         return viewController
     }

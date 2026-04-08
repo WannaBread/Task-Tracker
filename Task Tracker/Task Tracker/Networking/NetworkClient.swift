@@ -3,7 +3,7 @@ import Foundation
 // MARK: - NetworkClientProtocol
 
 protocol NetworkClientProtocol {
-    func fetch<T: Decodable & Sendable>(_ type: T.Type, from url: URL) async throws -> T
+    func fetch<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T
 }
 
 // MARK: - URLSessionNetworkClient

@@ -28,7 +28,7 @@ protocol TaskListPresentationLogic {
 // MARK: - TaskList Routing Logic (Router)
 
 protocol TaskListRoutingLogic {
-    func navigateToTaskDetail()
+    func navigateToTaskDetail(taskId: String)
     func navigateToCreateTask()
 }
 
@@ -47,4 +47,5 @@ protocol TaskListViewDelegate: AnyObject {
     func taskListViewDidDeleteTask(at index: Int)
     func taskListViewDidToggleTask(at index: Int)
     func taskListViewDidTapCreateTask()
+    func taskListViewDidRequestRefresh()
 }
