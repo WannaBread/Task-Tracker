@@ -4,6 +4,8 @@ import UIKit
 
 protocol TaskListTableManagerDelegate: AnyObject {
     func didSelectTask(id: String)
+    func didToggleTask(id: String)
+    func didDeleteTask(id: String)
 }
 
 // MARK: - TaskListTableManager
@@ -84,5 +86,43 @@ extension TaskListTableManager: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         guard indexPath.row < filteredItems.count else { return }
         delegate?.didSelectTask(id: filteredItems[indexPath.row].id)
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        guard indexPath.row < filteredItems.count else { return nil }
+        let item = filteredItems[indexPath.row]
+
+        let isCompleted = item.isCompleted
+        let title = isCompleted ? "Отменить" : "Готово"
+        let symbolName = isCompleted ? "arrow.uturn.backward.circle" : "checkmark.circle.fill"
+        let color: UIColor = isCompleted ? .systemGray : .systemGreen
+
+        let action = UIContextualAction(style: .normal, title: title) { [weak self] _, _, done in
+            self?.delegate?.didToggleTask(id: item.id)
+            done(true)
+        }
+        action.image = UIImage(systemName: symbolName)
+        action.backgroundColor = color
+
+        return UISwipeActionsConfiguration(actions: [action])
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        guard indexPath.row < filteredItems.count else { return nil }
+        let item = filteredItems[indexPath.row]
+
+        let action = UIContextualAction(style: .destructive, title: "Удалить") { [weak self] _, _, done in
+            self?.delegate?.didDeleteTask(id: item.id)
+            done(true)
+        }
+        action.image = UIImage(systemName: "trash.fill")
+
+        return UISwipeActionsConfiguration(actions: [action])
     }
 }

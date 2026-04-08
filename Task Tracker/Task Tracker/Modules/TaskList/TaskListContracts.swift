@@ -35,6 +35,7 @@ protocol TaskListRoutingLogic {
 // MARK: - TaskList Provider Protocol
 
 protocol TaskListProviderProtocol {
+    var cachedTasks: [TaskItem] { get }
     func fetchTasks() async throws -> [TaskItem]
     func deleteTask(id: String) async throws
     func toggleCompletion(id: String) async throws -> TaskItem

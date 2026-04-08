@@ -102,6 +102,7 @@ final class TaskListCell: UITableViewCell {
 
     func configure(with viewModel: TaskListItemViewModel) {
         titleLabel.text = viewModel.title
+        titleLabel.textColor = Self.titleColor(for: viewModel.priorityText)
         subtitleLabel.text = viewModel.dueDateText
         subtitleLabel.isHidden = viewModel.dueDateText == nil
 
@@ -118,9 +119,20 @@ final class TaskListCell: UITableViewCell {
         recurrenceImageView.isHidden = !viewModel.hasRecurrence
     }
 
+    private static func titleColor(for priorityText: String) -> UIColor {
+        switch priorityText {
+        case "Low":      return .secondaryLabel
+        case "Medium":   return .label
+        case "High":     return .systemOrange
+        case "Critical": return .systemRed
+        default:         return .label
+        }
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         titleLabel.text = nil
+        titleLabel.textColor = .label
         subtitleLabel.text = nil
         subtitleLabel.isHidden = false
         priorityLabel.text = nil

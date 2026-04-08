@@ -185,4 +185,14 @@ extension TaskListView: TaskListTableManagerDelegate {
         guard let index = tableManager.indexInAllItems(forId: id) else { return }
         delegate?.taskListViewDidSelectTask(at: index)
     }
+
+    func didToggleTask(id: String) {
+        guard let index = tableManager.indexInAllItems(forId: id) else { return }
+        delegate?.taskListViewDidToggleTask(at: index)
+    }
+
+    func didDeleteTask(id: String) {
+        guard let index = tableManager.indexInAllItems(forId: id) else { return }
+        delegate?.taskListViewDidDeleteTask(at: index)
+    }
 }

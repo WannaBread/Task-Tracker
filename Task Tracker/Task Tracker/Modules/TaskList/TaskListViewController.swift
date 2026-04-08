@@ -43,19 +43,17 @@ final class TaskListViewController: UIViewController, TaskListDisplayLogic, Task
     }
 
     func displayDelete(viewModel: TaskList.Delete.ViewModel) {
-        if viewModel.isSuccess {
-            interactor?.fetchTasks(request: TaskList.Fetch.Request())
-        } else if let error = viewModel.errorText {
+        if let error = viewModel.errorText {
             taskListView.update(with: .error(message: error))
         }
+        // Обновлённый список придёт через display(viewModel:) от presentTasks в интеракторе
     }
 
     func displayToggle(viewModel: TaskList.ToggleCompletion.ViewModel) {
-        if viewModel.isSuccess {
-            interactor?.fetchTasks(request: TaskList.Fetch.Request())
-        } else if let error = viewModel.errorText {
+        if let error = viewModel.errorText {
             taskListView.update(with: .error(message: error))
         }
+        // Обновлённый список придёт через display(viewModel:) от presentTasks в интеракторе
     }
 
     // MARK: - TaskListViewDelegate

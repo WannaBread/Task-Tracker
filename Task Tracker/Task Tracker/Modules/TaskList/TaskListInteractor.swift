@@ -54,10 +54,13 @@ final class TaskListInteractor: TaskListBusinessLogic {
             guard let self else { return }
             do {
                 try await self.provider?.deleteTask(id: taskId)
-                self.currentTasks.remove(at: index)
+                let cached = self.provider?.cachedTasks ?? []
+                self.currentTasks = cached
                 let response = TaskList.Delete.Response(result: .success(()))
+                let fetchResponse = TaskList.Fetch.Response(result: .success(cached))
                 await MainActor.run {
                     self.presenter?.presentDelete(response: response)
+                    self.presenter?.presentTasks(response: fetchResponse)
                 }
             } catch let appError as AppError {
                 let response = TaskList.Delete.Response(result: .failure(appError))
@@ -84,13 +87,14 @@ final class TaskListInteractor: TaskListBusinessLogic {
             guard let self else { return }
             do {
                 let updated = try await self.provider?.toggleCompletion(id: taskId)
-                if let updated {
-                    self.currentTasks[index] = updated
-                }
+                let cached = self.provider?.cachedTasks ?? []
+                self.currentTasks = cached
                 let item = updated ?? self.currentTasks[index]
                 let response = TaskList.ToggleCompletion.Response(result: .success(item))
+                let fetchResponse = TaskList.Fetch.Response(result: .success(cached))
                 await MainActor.run {
                     self.presenter?.presentToggle(response: response)
+                    self.presenter?.presentTasks(response: fetchResponse)
                 }
             } catch let appError as AppError {
                 let response = TaskList.ToggleCompletion.Response(result: .failure(appError))

@@ -4,8 +4,8 @@ enum TaskListBuilder {
     static func build(taskService: TaskServiceProtocol) -> UIViewController {
         let viewController = TaskListViewController()
         let presenter = TaskListPresenter()
-        let provider = TaskListProvider(taskService: taskService)
         let worker = TaskListWorker()
+        let provider = TaskListProvider(taskService: taskService, worker: worker)
         let interactor = TaskListInteractor()
         let router = TaskListRouter()
 

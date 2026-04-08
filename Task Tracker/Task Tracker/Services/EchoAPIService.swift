@@ -1,6 +1,7 @@
 import Foundation
 
-// MARK: - TodoAPIService
+// MARK: - EchoAPIService
+// Чистый HTTP-слой: только сетевые вызовы, никакой доменной логики и маппинга.
 
 final class EchoAPIService: TaskServiceProtocol {
 
@@ -17,46 +18,19 @@ final class EchoAPIService: TaskServiceProtocol {
         }
     }
 
-    // MARK: - TaskServiceProtocol
-
-    func fetchTasks() async throws -> TaskListResponse {
+    func fetchTasks() async throws -> [TaskItemDTO] {
         do {
-            let dtos = try await client.fetch([TaskItemDTO].self, from: todosURL)
-            let items = dtos.map { $0.toTaskItem() }
-            return TaskListResponse(tasks: items)
+            return try await client.fetch([TaskItemDTO].self, from: todosURL)
         } catch let networkError as NetworkError {
             throw networkError.asAppError()
         }
     }
 
-    func fetchTask(by id: String) async throws -> TaskDetailResponse {
-        // Echo API возвращает весь список — ищем нужный элемент локально
-        guard let task = TaskDataStore.shared.task(by: id) else {
-            throw AppError.notFound
+    func putTasks(_ dtos: [TaskItemDTO]) async throws {
+        do {
+            _ = try await client.send(dtos, to: todosURL, method: "PUT", responseType: [TaskItemDTO].self)
+        } catch let networkError as NetworkError {
+            throw networkError.asAppError()
         }
-        return TaskDetailResponse(task: task)
-    }
-
-    func createTask(request: CreateTaskRequest) async throws -> TaskItem {
-        throw AppError.serverError("Create is not supported by this API.")
-    }
-
-    func updateTask(request: UpdateTaskRequest) async throws -> TaskItem {
-        throw AppError.serverError("Update is not supported by this API.")
-    }
-
-    func toggleCompletion(taskId: String) async throws -> TaskItem {
-        // Echo API не персистит PATCH — выполняем оптимистичный локальный toggle
-        guard let task = TaskDataStore.shared.task(by: taskId) else {
-            throw AppError.notFound
-        }
-        var updated = task
-        updated.isCompleted.toggle()
-        return updated
-    }
-
-    func deleteTask(by id: String) async throws {
-        // Echo API не поддерживает DELETE отдельных элементов — удаляем локально
-        TaskDataStore.shared.remove(taskId: id)
     }
 }
