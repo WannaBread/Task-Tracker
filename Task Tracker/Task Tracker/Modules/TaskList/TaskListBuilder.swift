@@ -7,7 +7,7 @@ enum TaskListBuilder {
         let worker = TaskListWorker()
         let provider = TaskListProvider(taskService: taskService, worker: worker)
         let interactor = TaskListInteractor()
-        let router = TaskListRouter()
+        let router = TaskListRouter(taskService: taskService)
 
         viewController.interactor = interactor
         viewController.router = router
@@ -18,7 +18,6 @@ enum TaskListBuilder {
 
         presenter.viewController = viewController
         router.viewController = viewController
-        router.taskService = taskService
 
         return viewController
     }

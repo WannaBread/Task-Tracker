@@ -4,7 +4,6 @@ final class TaskListViewController: UIViewController, TaskListDisplayLogic, Task
     var interactor: TaskListBusinessLogic?
     var router: TaskListRoutingLogic?
 
-    // Stores the current full (unfiltered) item list for id lookup during navigation.
     private var currentItems: [TaskListItemViewModel] = []
 
     // D2: Search controller
@@ -51,14 +50,12 @@ final class TaskListViewController: UIViewController, TaskListDisplayLogic, Task
         if let error = viewModel.errorText {
             taskListView.update(with: .error(message: error))
         }
-        // Обновлённый список придёт через display(viewModel:) от presentTasks в интеракторе
     }
 
     func displayToggle(viewModel: TaskList.ToggleCompletion.ViewModel) {
         if let error = viewModel.errorText {
             taskListView.update(with: .error(message: error))
         }
-        // Обновлённый список придёт через display(viewModel:) от presentTasks в интеракторе
     }
 
     // MARK: - TaskListViewDelegate
@@ -69,11 +66,13 @@ final class TaskListViewController: UIViewController, TaskListDisplayLogic, Task
     }
 
     func taskListViewDidDeleteTask(at index: Int) {
-        interactor?.deleteTask(request: TaskList.Delete.Request(index: index))
+        guard index < currentItems.count else { return }
+        interactor?.deleteTask(request: TaskList.Delete.Request(id: currentItems[index].id))
     }
 
     func taskListViewDidToggleTask(at index: Int) {
-        interactor?.toggleCompletion(request: TaskList.ToggleCompletion.Request(index: index))
+        guard index < currentItems.count else { return }
+        interactor?.toggleCompletion(request: TaskList.ToggleCompletion.Request(id: currentItems[index].id))
     }
 
     func taskListViewDidTapCreateTask() {
@@ -96,6 +95,6 @@ final class TaskListViewController: UIViewController, TaskListDisplayLogic, Task
 extension TaskListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         let query = searchController.searchBar.text
-        taskListView.tableManager.filter(by: query, in: taskListView.internalTableView)
+        interactor?.searchTasks(request: TaskList.SearchTasks.Request(query: query))
     }
 }

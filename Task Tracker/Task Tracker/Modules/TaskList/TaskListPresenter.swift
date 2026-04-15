@@ -3,6 +3,13 @@ import Foundation
 final class TaskListPresenter: TaskListPresentationLogic {
     weak var viewController: TaskListDisplayLogic?
 
+    private let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .none
+        return f
+    }()
+
     // MARK: - Loading
 
     func presentLoading() {
@@ -62,15 +69,7 @@ final class TaskListPresenter: TaskListPresentationLogic {
     // MARK: - Private mapping
 
     private func makeViewModel(from task: TaskItem) -> TaskListItemViewModel {
-        let dueDateText: String?
-        if let dueDate = task.dueDate {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .none
-            dueDateText = formatter.string(from: dueDate)
-        } else {
-            dueDateText = nil
-        }
+        let dueDateText = task.dueDate.map { dateFormatter.string(from: $0) }
 
         return TaskListItemViewModel(
             id: task.id,

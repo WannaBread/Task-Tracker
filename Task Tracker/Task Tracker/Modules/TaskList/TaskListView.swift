@@ -58,9 +58,6 @@ final class TaskListView: UIView {
         return stack
     }()
 
-    // D2: expose tableView reference for search filtering from VC
-    var internalTableView: UITableView { tableView }
-
     // D1: Pull-to-refresh
     private lazy var refreshControl: UIRefreshControl = {
         let rc = UIRefreshControl()

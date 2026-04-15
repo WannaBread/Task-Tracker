@@ -14,8 +14,6 @@ final class TaskListTableManager: NSObject {
     weak var delegate: TaskListTableManagerDelegate?
 
     private var items: [TaskListItemViewModel] = []
-    private var filteredItems: [TaskListItemViewModel] = []
-    private var searchQuery: String = ""
 
     // MARK: - Setup
 
@@ -29,36 +27,13 @@ final class TaskListTableManager: NSObject {
 
     func update(items: [TaskListItemViewModel], in tableView: UITableView) {
         self.items = items
-        applyFilter(in: tableView)
-    }
-
-    // MARK: - Search (D2)
-
-    func filter(by query: String?, in tableView: UITableView? = nil) {
-        searchQuery = query ?? ""
-        if let tableView {
-            applyFilter(in: tableView)
-        }
+        tableView.reloadData()
     }
 
     // MARK: - Accessors
 
-    /// Returns the index of an item (by id) in the full unfiltered items array.
     func indexInAllItems(forId id: String) -> Int? {
         items.firstIndex(where: { $0.id == id })
-    }
-
-    // MARK: - Private
-
-    private func applyFilter(in tableView: UITableView) {
-        if searchQuery.isEmpty {
-            filteredItems = items
-        } else {
-            filteredItems = items.filter {
-                $0.title.localizedCaseInsensitiveContains(searchQuery)
-            }
-        }
-        tableView.reloadData()
     }
 }
 
@@ -66,7 +41,7 @@ final class TaskListTableManager: NSObject {
 
 extension TaskListTableManager: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        filteredItems.count
+        items.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -74,7 +49,7 @@ extension TaskListTableManager: UITableViewDataSource {
             withIdentifier: TaskListCell.reuseIdentifier,
             for: indexPath
         ) as! TaskListCell
-        cell.configure(with: filteredItems[indexPath.row])
+        cell.configure(with: items[indexPath.row])
         return cell
     }
 }
@@ -84,16 +59,16 @@ extension TaskListTableManager: UITableViewDataSource {
 extension TaskListTableManager: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard indexPath.row < filteredItems.count else { return }
-        delegate?.didSelectTask(id: filteredItems[indexPath.row].id)
+        guard indexPath.row < items.count else { return }
+        delegate?.didSelectTask(id: items[indexPath.row].id)
     }
 
     func tableView(
         _ tableView: UITableView,
         leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
-        guard indexPath.row < filteredItems.count else { return nil }
-        let item = filteredItems[indexPath.row]
+        guard indexPath.row < items.count else { return nil }
+        let item = items[indexPath.row]
 
         let isCompleted = item.isCompleted
         let title = isCompleted ? "Отменить" : "Готово"
@@ -114,8 +89,8 @@ extension TaskListTableManager: UITableViewDelegate {
         _ tableView: UITableView,
         trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
-        guard indexPath.row < filteredItems.count else { return nil }
-        let item = filteredItems[indexPath.row]
+        guard indexPath.row < items.count else { return nil }
+        let item = items[indexPath.row]
 
         let action = UIContextualAction(style: .destructive, title: "Удалить") { [weak self] _, _, done in
             self?.delegate?.didDeleteTask(id: item.id)

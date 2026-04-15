@@ -30,7 +30,7 @@ enum TaskList {
 
     enum Delete {
         struct Request {
-            let index: Int
+            let id: String
         }
 
         struct Response {
@@ -47,7 +47,7 @@ enum TaskList {
 
     enum ToggleCompletion {
         struct Request {
-            let index: Int
+            let id: String
         }
 
         struct Response {
@@ -64,6 +64,12 @@ enum TaskList {
 
     enum CreateTask {
         struct Request {}
+    }
+    
+    enum SearchTasks{
+        struct Request{
+            let query: String?
+        }
     }
 }
 

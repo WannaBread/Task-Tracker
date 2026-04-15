@@ -30,12 +30,13 @@ final class TaskListProvider: TaskListProviderProtocol {
     }
 
     func toggleCompletion(id: String) async throws -> TaskItem {
-        guard let index = taskDataStore.tasks.firstIndex(where: { $0.id == id }) else {
+        guard var task = taskDataStore.task(by: id) else {
             throw AppError.notFound
         }
-        taskDataStore.tasks[index].isCompleted.toggle()
+        task.isCompleted.toggle()
+        taskDataStore.update(task: task)
         try await persistCurrentTasks()
-        return taskDataStore.tasks[index]
+        return task
     }
 
     // MARK: - Private

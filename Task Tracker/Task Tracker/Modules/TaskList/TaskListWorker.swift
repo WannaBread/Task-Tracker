@@ -4,7 +4,6 @@ final class TaskListWorker {
 
     // MARK: - Sorting / Filtering
 
-    /// Sorts tasks so incomplete tasks appear first, then by createdAt descending.
     func sortTasksByDate(_ tasks: [TaskItem]) -> [TaskItem] {
         return tasks.sorted {
             if $0.isCompleted != $1.isCompleted {
@@ -14,9 +13,13 @@ final class TaskListWorker {
         }
     }
 
-    /// Returns only tasks matching the given priority level.
     func filter(tasks: [TaskItem], priority: TaskPriority) -> [TaskItem] {
         return tasks.filter { $0.priority == priority }
+    }
+
+    func search(tasks: [TaskItem], query: String) -> [TaskItem] {
+        guard !query.isEmpty else { return tasks }
+        return tasks.filter { $0.title.localizedCaseInsensitiveContains(query) }
     }
 
     // MARK: - Mapping: DTO → Domain

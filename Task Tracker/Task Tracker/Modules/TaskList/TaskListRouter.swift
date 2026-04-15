@@ -2,10 +2,13 @@ import UIKit
 
 final class TaskListRouter: TaskListRoutingLogic {
     weak var viewController: UIViewController?
-    var taskService: TaskServiceProtocol?
+    private let taskService: TaskServiceProtocol
+
+    init(taskService: TaskServiceProtocol) {
+        self.taskService = taskService
+    }
 
     func navigateToTaskDetail(taskId: String) {
-        guard let taskService else { return }
         let detailVC = TaskDetailBuilder.build(taskId: taskId, taskService: taskService)
         viewController?.navigationController?.pushViewController(detailVC, animated: true)
     }
