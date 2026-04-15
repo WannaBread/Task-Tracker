@@ -9,53 +9,15 @@ final class TaskListView: UIView {
         let tv = UITableView(frame: .zero, style: .plain)
         tv.translatesAutoresizingMaskIntoConstraints = false
         tv.rowHeight = UITableView.automaticDimension
-        tv.estimatedRowHeight = 64
+        tv.estimatedRowHeight = DS.Cell.estimatedRowHeight
         return tv
     }()
 
-    private let loadingView: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .large)
-        indicator.translatesAutoresizingMaskIntoConstraints = false
-        indicator.hidesWhenStopped = true
-        return indicator
-    }()
-
-    private let emptyLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Нет задач"
-        label.font = .systemFont(ofSize: 18, weight: .medium)
-        label.textColor = .secondaryLabel
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    private let errorLabel: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 16)
-        label.textColor = .systemRed
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-
-    private lazy var retryButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Повторить", for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        button.addTarget(self, action: #selector(retryTapped), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-
-    private let errorStack: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.spacing = 12
-        stack.alignment = .center
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        return stack
+    private let stateView: DSStateView = {
+        let v = DSStateView()
+        v.translatesAutoresizingMaskIntoConstraints = false
+        v.isHidden = true
+        return v
     }()
 
     // D1: Pull-to-refresh
@@ -88,15 +50,10 @@ final class TaskListView: UIView {
     // MARK: - Layout
 
     private func setupUI() {
-        backgroundColor = .systemBackground
-
-        errorStack.addArrangedSubview(errorLabel)
-        errorStack.addArrangedSubview(retryButton)
+        backgroundColor = DS.Colors.background
 
         addSubview(tableView)
-        addSubview(loadingView)
-        addSubview(emptyLabel)
-        addSubview(errorStack)
+        addSubview(stateView)
 
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: topAnchor),
@@ -104,21 +61,11 @@ final class TaskListView: UIView {
             tableView.trailingAnchor.constraint(equalTo: trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            loadingView.centerXAnchor.constraint(equalTo: centerXAnchor),
-            loadingView.centerYAnchor.constraint(equalTo: centerYAnchor),
-
-            emptyLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
-            emptyLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            emptyLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 32),
-            emptyLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -32),
-
-            errorStack.centerXAnchor.constraint(equalTo: centerXAnchor),
-            errorStack.centerYAnchor.constraint(equalTo: centerYAnchor),
-            errorStack.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 32),
-            errorStack.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -32),
+            stateView.topAnchor.constraint(equalTo: topAnchor),
+            stateView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            stateView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            stateView.bottomAnchor.constraint(equalTo: bottomAnchor),
         ])
-
-        setOverlaysHidden(true)
     }
 
     // MARK: - State
@@ -129,49 +76,36 @@ final class TaskListView: UIView {
         switch state {
         case .initial, .loading:
             tableView.isHidden = true
-            emptyLabel.isHidden = true
-            errorStack.isHidden = true
-            loadingView.startAnimating()
+            stateView.isHidden = false
+            stateView.configure(with: .loading(message: "Загрузка..."))
 
         case .content(let items):
-            loadingView.stopAnimating()
-            emptyLabel.isHidden = true
-            errorStack.isHidden = true
+            stateView.isHidden = true
             tableView.isHidden = false
             tableManager.update(items: items, in: tableView)
 
         case .empty(let message):
-            loadingView.stopAnimating()
             tableView.isHidden = true
-            errorStack.isHidden = true
-            emptyLabel.text = message.isEmpty ? "Нет задач" : message
-            emptyLabel.isHidden = false
+            stateView.isHidden = false
+            stateView.configure(with: .empty(
+                message: message.isEmpty ? "Задач пока нет" : message,
+                image: nil
+            ))
 
         case .error(let message):
-            loadingView.stopAnimating()
             tableView.isHidden = true
-            emptyLabel.isHidden = true
-            errorLabel.text = message
-            errorStack.isHidden = false
+            stateView.isHidden = false
+            stateView.configure(with: .error(message: message, retryTitle: "Повторить"))
+            stateView.onRetry = { [weak self] in
+                self?.delegate?.taskListViewDidRequestRefresh()
+            }
         }
     }
 
     // MARK: - Actions
 
-    @objc private func retryTapped() {
-        delegate?.taskListViewDidRequestRefresh()
-    }
-
     @objc private func refreshPulled() {
         delegate?.taskListViewDidRequestRefresh()
-    }
-
-    // MARK: - Helpers
-
-    private func setOverlaysHidden(_ hidden: Bool) {
-        loadingView.isHidden = hidden
-        emptyLabel.isHidden = hidden
-        errorStack.isHidden = hidden
     }
 }
 

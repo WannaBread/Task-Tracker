@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 final class TaskListPresenter: TaskListPresentationLogic {
     weak var viewController: TaskListDisplayLogic?
@@ -69,16 +69,45 @@ final class TaskListPresenter: TaskListPresentationLogic {
     // MARK: - Private mapping
 
     private func makeViewModel(from task: TaskItem) -> TaskListItemViewModel {
-        let dueDateText = task.dueDate.map { dateFormatter.string(from: $0) }
+        let dueDateText = task.dueDate.map { dateFormatter.string(from: $0) } ?? ""
+
+        var icons: [TaskCellViewModel.IconConfig] = []
+
+        let completionSymbol = task.isCompleted ? "checkmark.circle.fill" : "circle"
+        let completionColor = task.isCompleted ? DS.Colors.success : DS.Colors.iconDefault
+        if let image = UIImage(systemName: completionSymbol) {
+            icons.append(.init(image: image, tintColor: completionColor))
+        }
+
+        if task.reminder != nil, let image = UIImage(systemName: "bell.fill") {
+            icons.append(.init(image: image, tintColor: DS.Colors.primary))
+        }
+
+        if task.recurrence != nil, let image = UIImage(systemName: "repeat") {
+            icons.append(.init(image: image, tintColor: DS.Colors.success))
+        }
+
+        let cellVM = TaskCellViewModel(
+            title: task.title,
+            titleColor: Self.titleColor(for: task.priority.title),
+            subtitle: dueDateText,
+            icons: icons
+        )
 
         return TaskListItemViewModel(
             id: task.id,
-            title: task.title,
-            priorityText: task.priority.title,
-            dueDateText: dueDateText,
             isCompleted: task.isCompleted,
-            hasReminder: task.reminder != nil,
-            hasRecurrence: task.recurrence != nil
+            cellViewModel: cellVM
         )
+    }
+
+    private static func titleColor(for priorityTitle: String) -> UIColor {
+        switch priorityTitle {
+        case "Low":      return DS.Colors.textSecondary
+        case "Medium":   return DS.Colors.textPrimary
+        case "High":     return DS.Colors.warning
+        case "Critical": return DS.Colors.error
+        default:         return DS.Colors.textPrimary
+        }
     }
 }

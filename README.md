@@ -68,6 +68,96 @@
 
 ---
 
+## Лабораторная №6 — Дизайн-система
+
+### Токены (`DS`)
+
+#### Colors
+| Токен | Значение |
+|---|---|
+| `DS.Colors.background` | `UIColor.systemBackground` |
+| `DS.Colors.secondaryBackground` | `UIColor.secondarySystemBackground` |
+| `DS.Colors.primary` | `UIColor.systemBlue` |
+| `DS.Colors.error` | `UIColor.systemRed` |
+| `DS.Colors.success` | `UIColor.systemGreen` |
+| `DS.Colors.warning` | `UIColor.systemOrange` |
+| `DS.Colors.textPrimary` | `UIColor.label` |
+| `DS.Colors.textSecondary` | `UIColor.secondaryLabel` |
+| `DS.Colors.buttonText` | `UIColor.white` |
+| `DS.Colors.iconDefault` | `UIColor.systemGray3` |
+
+#### Spacing
+| Токен | Значение |
+|---|---|
+| `DS.Spacing.xs` | 4 pt |
+| `DS.Spacing.s` | 8 pt |
+| `DS.Spacing.m` | 16 pt |
+| `DS.Spacing.l` | 24 pt |
+| `DS.Spacing.xl` | 40 pt |
+| `DS.Spacing.cornerRadius` | 12 pt |
+| `DS.Spacing.fieldHeight` | 50 pt |
+| `DS.Spacing.buttonHeight` | 50 pt |
+| `DS.Spacing.borderWidth` | 1.5 pt |
+
+#### Typography
+| Метод | Шрифт |
+|---|---|
+| `DS.Typography.largeTitle()` | 32pt bold |
+| `DS.Typography.title()` | 20pt semibold |
+| `DS.Typography.body()` | 16pt regular |
+| `DS.Typography.bodyMedium()` | 16pt semibold |
+| `DS.Typography.button()` | 17pt semibold |
+| `DS.Typography.caption()` | 14pt regular |
+| `DS.Typography.captionMedium()` | 14pt medium |
+| `DS.Typography.small()` | 13pt regular |
+
+### Компоненты
+
+#### `DSButton`
+```swift
+DSButton(style: .primary, title: "Sign In")   // синяя кнопка
+DSButton(style: .secondary, title: "Отмена")  // рамка, прозрачный фон
+DSButton(style: .destructive, title: "Удалить") // красная кнопка
+button.setLoading(true)   // спиннер вместо текста
+button.isEnabled = false  // alpha 0.5
+```
+
+#### `DSTextField`
+```swift
+let field = DSTextField()
+field.title = "Email"
+field.placeholder = "example@mail.com"
+field.errorText = "Неверный формат"   // показывает красную рамку + подпись
+field.errorText = nil                  // сбрасывает ошибку
+field.onTextChanged = { text in ... }
+```
+
+#### `DSStateView`
+```swift
+stateView.configure(with: .loading(message: "Загрузка..."))
+stateView.configure(with: .error(message: "Нет соединения", retryTitle: "Повторить"))
+stateView.configure(with: .empty(message: "Задач пока нет", image: nil))
+stateView.onRetry = { ... }
+```
+
+### Применение
+
+| Файл | Что изменено |
+|---|---|
+| `AuthView.swift` | `private enum Layout` удалён; все цвета/шрифты/отступы заменены на DS-токены; поля заменены на `DSTextField`; кнопка — `DSButton(.primary)`; ошибки полей — через `field.errorText` |
+| `TaskListView.swift` | `loadingView`, `emptyLabel`, `errorStack`, `retryButton` заменены единым `DSStateView`; цвет фона — `DS.Colors.background` |
+| `TaskListCell.swift` | Все `UIFont.systemFont(...)` → `DS.Typography.*`; все `UIColor.*` → `DS.Colors.*` |
+
+### Как проверить состояния loading / error / empty
+
+1. Открыть `Networking/NetworkConfig.swift` — установить `useLocalFallback = true`, чтобы не зависеть от сети
+2. **Loading** — видно при первом входе на экран TaskList (спиннер + подпись "Загрузка...")
+3. **Error** — в `MockTaskService.swift` / `EchoAPIService` временно бросить ошибку; появится сообщение + кнопка "Повторить"
+4. **Empty** — очистить `todos.json` до пустого массива `[]`; появится надпись "Задач пока нет"
+5. Все состояния рендерятся через `DSStateView.configure(with:)`
+
+---
+
 ## Лабораторная №4
 
 ### API

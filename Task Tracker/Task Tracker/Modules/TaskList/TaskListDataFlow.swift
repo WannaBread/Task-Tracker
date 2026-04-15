@@ -75,7 +75,7 @@ enum TaskList {
 
 // MARK: - TaskList View State
 
-enum TaskListViewState: Equatable {
+enum TaskListViewState {
     case initial
     case loading
     case content(items: [TaskListItemViewModel])
@@ -83,12 +83,8 @@ enum TaskListViewState: Equatable {
     case error(message: String)
 }
 
-struct TaskListItemViewModel: Equatable {
+struct TaskListItemViewModel {
     let id: String
-    let title: String
-    let priorityText: String
-    let dueDateText: String?
     let isCompleted: Bool
-    let hasReminder: Bool
-    let hasRecurrence: Bool
+    let cellViewModel: TaskCellViewModel
 }
