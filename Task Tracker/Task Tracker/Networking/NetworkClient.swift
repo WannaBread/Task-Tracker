@@ -3,7 +3,13 @@ import Foundation
 // MARK: - NetworkClientProtocol
 
 protocol NetworkClientProtocol {
-    nonisolated func fetch<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T
+    func fetch<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T
+    func send<Body: Encodable, Response: Decodable>(
+        _ body: Body,
+        to url: URL,
+        method: String,
+        responseType: Response.Type
+    ) async throws -> Response
 }
 
 // MARK: - URLSessionNetworkClient
@@ -15,7 +21,7 @@ final class URLSessionNetworkClient: NetworkClientProtocol {
         self.session = session
     }
 
-    nonisolated func fetch<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T {
+    func fetch<T: Decodable & Sendable>(_ type: T.Type, from url: URL) async throws -> T {
         let data: Data
         let response: URLResponse
 
@@ -42,6 +48,49 @@ final class URLSessionNetworkClient: NetworkClientProtocol {
             throw NetworkError.decodingFailed(error)
         }
     }
+
+    func send<Body: Encodable, Response: Decodable>(
+        _ body: Body,
+        to url: URL,
+        method: String,
+        responseType: Response.Type
+    ) async throws -> Response {
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        do {
+            request.httpBody = try JSONEncoder().encode(body)
+        } catch {
+            throw NetworkError.underlying(error)
+        }
+
+        let data: Data
+        let urlResponse: URLResponse
+
+        do {
+            (data, urlResponse) = try await session.data(for: request)
+        } catch let urlError as URLError where urlError.code == .cancelled {
+            throw NetworkError.cancelled
+        } catch {
+            throw NetworkError.underlying(error)
+        }
+
+        if let http = urlResponse as? HTTPURLResponse,
+           !(200...299).contains(http.statusCode) {
+            throw NetworkError.requestFailed(statusCode: http.statusCode)
+        }
+
+        guard !data.isEmpty else {
+            throw NetworkError.noData
+        }
+
+        do {
+            return try JSONDecoder().decode(responseType, from: data)
+        } catch {
+            throw NetworkError.decodingFailed(error)
+        }
+    }
 }
 
 // MARK: - BundleNetworkClient
@@ -55,7 +104,7 @@ final class BundleNetworkClient: NetworkClientProtocol {
         self.decoder = decoder
     }
 
-    nonisolated func fetch<T: Decodable>(_ type: T.Type, from url: URL) async throws -> T {
+    func fetch<T: Decodable & Sendable>(_ type: T.Type, from url: URL) async throws -> T {
         // Derive the resource name from the URL path (e.g. ".../todos" → "todos").
         let fileName = url.deletingPathExtension().lastPathComponent
 
@@ -76,6 +125,21 @@ final class BundleNetworkClient: NetworkClientProtocol {
 
         do {
             return try decoder.decode(type, from: data)
+        } catch {
+            throw NetworkError.decodingFailed(error)
+        }
+    }
+
+    /// Локальный фолбэк не поддерживает запись — симулируем echo, декодируя отправленное тело обратно.
+    func send<Body: Encodable, Response: Decodable>(
+        _ body: Body,
+        to url: URL,
+        method: String,
+        responseType: Response.Type
+    ) async throws -> Response {
+        let data = try JSONEncoder().encode(body)
+        do {
+            return try JSONDecoder().decode(responseType, from: data)
         } catch {
             throw NetworkError.decodingFailed(error)
         }

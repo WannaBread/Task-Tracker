@@ -14,6 +14,7 @@ protocol TaskListBusinessLogic {
     func fetchTasks(request: TaskList.Fetch.Request)
     func deleteTask(request: TaskList.Delete.Request)
     func toggleCompletion(request: TaskList.ToggleCompletion.Request)
+    func searchTasks(request: TaskList.SearchTasks.Request)
 }
 
 // MARK: - TaskList Presentation Logic (Interactor → Presenter)
@@ -28,13 +29,14 @@ protocol TaskListPresentationLogic {
 // MARK: - TaskList Routing Logic (Router)
 
 protocol TaskListRoutingLogic {
-    func navigateToTaskDetail()
+    func navigateToTaskDetail(taskId: String)
     func navigateToCreateTask()
 }
 
 // MARK: - TaskList Provider Protocol
 
 protocol TaskListProviderProtocol {
+    var cachedTasks: [TaskItem] { get }
     func fetchTasks() async throws -> [TaskItem]
     func deleteTask(id: String) async throws
     func toggleCompletion(id: String) async throws -> TaskItem
@@ -47,4 +49,5 @@ protocol TaskListViewDelegate: AnyObject {
     func taskListViewDidDeleteTask(at index: Int)
     func taskListViewDidToggleTask(at index: Int)
     func taskListViewDidTapCreateTask()
+    func taskListViewDidRequestRefresh()
 }

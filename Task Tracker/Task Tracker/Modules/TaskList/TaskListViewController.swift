@@ -4,6 +4,17 @@ final class TaskListViewController: UIViewController, TaskListDisplayLogic, Task
     var interactor: TaskListBusinessLogic?
     var router: TaskListRoutingLogic?
 
+    private var currentItems: [TaskListItemViewModel] = []
+
+    // D2: Search controller
+    private lazy var searchController: UISearchController = {
+        let sc = UISearchController(searchResultsController: nil)
+        sc.searchResultsUpdater = self
+        sc.obscuresBackgroundDuringPresentation = false
+        sc.searchBar.placeholder = "Search tasks"
+        return sc
+    }()
+
     private var taskListView: TaskListView {
         return view as! TaskListView
     }
@@ -14,25 +25,76 @@ final class TaskListViewController: UIViewController, TaskListDisplayLogic, Task
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        title = "Tasks"
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .add,
+            target: self,
+            action: #selector(createTaskTapped)
+        )
         interactor?.fetchTasks(request: TaskList.Fetch.Request())
     }
 
     // MARK: - TaskListDisplayLogic
-    func display(viewModel: TaskList.Fetch.ViewModel) {}
-    func displayDelete(viewModel: TaskList.Delete.ViewModel) {}
-    func displayToggle(viewModel: TaskList.ToggleCompletion.ViewModel) {}
+
+    func display(viewModel: TaskList.Fetch.ViewModel) {
+        if case .content(let items) = viewModel.state {
+            currentItems = items
+        }
+        taskListView.update(with: viewModel.state)
+    }
+
+    func displayDelete(viewModel: TaskList.Delete.ViewModel) {
+        if let error = viewModel.errorText {
+            taskListView.update(with: .error(message: error))
+        }
+    }
+
+    func displayToggle(viewModel: TaskList.ToggleCompletion.ViewModel) {
+        if let error = viewModel.errorText {
+            taskListView.update(with: .error(message: error))
+        }
+    }
 
     // MARK: - TaskListViewDelegate
+
     func taskListViewDidSelectTask(at index: Int) {
-        // route to next screen
+        guard index < currentItems.count else { return }
+        router?.navigateToTaskDetail(taskId: currentItems[index].id)
     }
+
     func taskListViewDidDeleteTask(at index: Int) {
-        interactor?.deleteTask(request: TaskList.Delete.Request(index: index))
+        guard index < currentItems.count else { return }
+        interactor?.deleteTask(request: TaskList.Delete.Request(id: currentItems[index].id))
     }
+
     func taskListViewDidToggleTask(at index: Int) {
-        interactor?.toggleCompletion(request: TaskList.ToggleCompletion.Request(index: index))
+        guard index < currentItems.count else { return }
+        interactor?.toggleCompletion(request: TaskList.ToggleCompletion.Request(id: currentItems[index].id))
     }
+
     func taskListViewDidTapCreateTask() {
-        interactor?.didTapCreateTask(request: TaskList.CreateTask.Request())
+        router?.navigateToCreateTask()
+    }
+
+    func taskListViewDidRequestRefresh() {
+        interactor?.fetchTasks(request: TaskList.Fetch.Request())
+    }
+
+    // MARK: - Actions
+
+    @objc private func createTaskTapped() {
+        router?.navigateToCreateTask()
+    }
+}
+
+// MARK: - UISearchResultsUpdating (D2)
+
+extension TaskListViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        let query = searchController.searchBar.text
+        interactor?.searchTasks(request: TaskList.SearchTasks.Request(query: query))
     }
 }

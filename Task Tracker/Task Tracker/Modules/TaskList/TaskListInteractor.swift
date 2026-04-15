@@ -5,10 +5,10 @@ final class TaskListInteractor: TaskListBusinessLogic {
     var provider: TaskListProviderProtocol?
     var worker: TaskListWorker?
 
-    // D2: retain the active fetch task so it can be cancelled on retry.
     private var fetchTask: Task<Void, Never>?
 
     private var currentTasks: [TaskItem] = []
+    private var currentSearchQuery: String = ""
 
     // MARK: - Fetch
 
@@ -23,7 +23,8 @@ final class TaskListInteractor: TaskListBusinessLogic {
                 let tasks = try await self.provider?.fetchTasks() ?? []
                 guard !Task.isCancelled else { return }
                 self.currentTasks = tasks
-                let response = TaskList.Fetch.Response(result: .success(tasks))
+                let filtered = self.worker?.search(tasks: tasks, query: self.currentSearchQuery) ?? tasks
+                let response = TaskList.Fetch.Response(result: .success(filtered))
                 await MainActor.run {
                     self.presenter?.presentTasks(response: response)
                 }
@@ -43,21 +44,32 @@ final class TaskListInteractor: TaskListBusinessLogic {
         }
     }
 
+    // MARK: - Search
+
+    func searchTasks(request: TaskList.SearchTasks.Request) {
+        currentSearchQuery = request.query ?? ""
+        let filtered = worker?.search(tasks: currentTasks, query: currentSearchQuery) ?? currentTasks
+        let response = TaskList.Fetch.Response(result: .success(filtered))
+        presenter?.presentTasks(response: response)
+    }
+
     // MARK: - Delete
 
     func deleteTask(request: TaskList.Delete.Request) {
-        let index = request.index
-        guard index < currentTasks.count else { return }
-        let taskId = currentTasks[index].id
+        let taskId = request.id
 
         Task { [weak self] in
             guard let self else { return }
             do {
                 try await self.provider?.deleteTask(id: taskId)
-                self.currentTasks.remove(at: index)
+                let cached = self.provider?.cachedTasks ?? []
+                self.currentTasks = cached
+                let filtered = self.worker?.search(tasks: cached, query: self.currentSearchQuery) ?? cached
                 let response = TaskList.Delete.Response(result: .success(()))
+                let fetchResponse = TaskList.Fetch.Response(result: .success(filtered))
                 await MainActor.run {
                     self.presenter?.presentDelete(response: response)
+                    self.presenter?.presentTasks(response: fetchResponse)
                 }
             } catch let appError as AppError {
                 let response = TaskList.Delete.Response(result: .failure(appError))
@@ -76,21 +88,21 @@ final class TaskListInteractor: TaskListBusinessLogic {
     // MARK: - Toggle
 
     func toggleCompletion(request: TaskList.ToggleCompletion.Request) {
-        let index = request.index
-        guard index < currentTasks.count else { return }
-        let taskId = currentTasks[index].id
+        let taskId = request.id
 
         Task { [weak self] in
             guard let self else { return }
             do {
                 let updated = try await self.provider?.toggleCompletion(id: taskId)
-                if let updated {
-                    self.currentTasks[index] = updated
-                }
-                let item = updated ?? self.currentTasks[index]
+                let cached = self.provider?.cachedTasks ?? []
+                self.currentTasks = cached
+                let filtered = self.worker?.search(tasks: cached, query: self.currentSearchQuery) ?? cached
+                let item = updated ?? cached.first(where: { $0.id == taskId }) ?? cached[0]
                 let response = TaskList.ToggleCompletion.Response(result: .success(item))
+                let fetchResponse = TaskList.Fetch.Response(result: .success(filtered))
                 await MainActor.run {
                     self.presenter?.presentToggle(response: response)
+                    self.presenter?.presentTasks(response: fetchResponse)
                 }
             } catch let appError as AppError {
                 let response = TaskList.ToggleCompletion.Response(result: .failure(appError))

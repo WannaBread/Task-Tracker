@@ -52,7 +52,7 @@ struct ReminderSettings: Equatable, Codable {
 
 // MARK: - Task Item
 
-struct TaskItem: Equatable, Identifiable, Codable {
+struct TaskItem: Equatable{
     let id: String
     var title: String
     var taskDescription: String
