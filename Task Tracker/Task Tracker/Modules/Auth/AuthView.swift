@@ -91,7 +91,8 @@ final class AuthView: UIView {
     }()
 
     private let loginButton: DSButton = {
-        let btn = DSButton(style: .primary, title: "Sign In")
+        let btn = DSButton()
+        btn.configure(with: DSButtonConfig(title: "Sign In", style: .primary))
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.accessibilityIdentifier = "auth_login_button"
         return btn
@@ -235,8 +236,12 @@ final class AuthView: UIView {
     // MARK: - Update State
 
     func update(with state: AuthViewState) {
-        loginButton.isEnabled = state.isLoginButtonEnabled
-        loginButton.setLoading(state.isLoading)
+        loginButton.configure(with: DSButtonConfig(
+            title: "Sign In",
+            style: .primary,
+            isEnabled: state.isLoginButtonEnabled,
+            isLoading: state.isLoading
+        ))
 
         emailField.state = state.emailError.map { .error($0) } ?? .normal
         passwordField.state = state.passwordError.map { .error($0) } ?? .normal

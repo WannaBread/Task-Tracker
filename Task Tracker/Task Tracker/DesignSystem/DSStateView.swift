@@ -37,7 +37,8 @@ final class DSStateView: UIView {
     }()
 
     private lazy var retryButton: DSButton = {
-        let btn = DSButton(style: .secondary, title: "Повторить")
+        let btn = DSButton()
+        btn.configure(with: DSButtonConfig(title: "Повторить", style: .secondary))
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.addTarget(self, action: #selector(retryTapped), for: .touchUpInside)
         return btn
@@ -111,7 +112,7 @@ final class DSStateView: UIView {
             messageLabel.textColor = DS.Colors.error
             messageLabel.isHidden = false
             if let retryTitle {
-                retryButton.setTitle(retryTitle)
+                retryButton.configure(with: DSButtonConfig(title: retryTitle, style: .secondary))
                 retryButton.isHidden = false
             }
 
