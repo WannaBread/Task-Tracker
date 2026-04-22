@@ -63,7 +63,6 @@ final class DSButton: UIControl {
     // MARK: - Configure
 
     func configure(with config: DSButtonConfig) {
-        assert(Thread.isMainThread, "DSButton.configure must be called on the main thread")
 
         currentConfig = config
 
