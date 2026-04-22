@@ -139,22 +139,12 @@ stateView.configure(with: .error(message: "Нет соединения", retryTi
 stateView.configure(with: .empty(message: "Задач пока нет", image: nil))
 stateView.onRetry = { ... }
 ```
-
-### Применение
-
-| Файл | Что изменено |
-|---|---|
-| `AuthView.swift` | `private enum Layout` удалён; все цвета/шрифты/отступы заменены на DS-токены; поля заменены на `DSTextField`; кнопка — `DSButton(.primary)`; ошибки полей — через `field.errorText` |
-| `TaskListView.swift` | `loadingView`, `emptyLabel`, `errorStack`, `retryButton` заменены единым `DSStateView`; цвет фона — `DS.Colors.background` |
-| `TaskListCell.swift` | Все `UIFont.systemFont(...)` → `DS.Typography.*`; все `UIColor.*` → `DS.Colors.*` |
-
-### Как проверить состояния loading / error / empty
-
-1. Открыть `Networking/NetworkConfig.swift` — установить `useLocalFallback = true`, чтобы не зависеть от сети
-2. **Loading** — видно при первом входе на экран TaskList (спиннер + подпись "Загрузка...")
-3. **Error** — в `MockTaskService.swift` / `EchoAPIService` временно бросить ошибку; появится сообщение + кнопка "Повторить"
-4. **Empty** — очистить `todos.json` до пустого массива `[]`; появится надпись "Задач пока нет"
-5. Все состояния рендерятся через `DSStateView.configure(with:)`
+---
+### Допы
+- **D1 — Темизация Light/Dark**: описать что все цвета динамические через UIColor с traitCollection, есть LightTheme/DarkTheme, переключается автоматически через системные настройки
+- **D3 — TextStyle**: описать extension UILabel.apply(_ style:), перечислить доступные стили
+- **D4 — Валидируемые поля**: описать DSFieldConfig, DSFieldState (normal/error/disabled), как конфигурируется через configure(with:)
+- **D5 — DS для списка**: описать TaskCellViewModel, метод configure(with:), корректный prepareForReuse, маппинг в Presenter
 
 ---
 
