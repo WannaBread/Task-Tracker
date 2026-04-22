@@ -68,6 +68,86 @@
 
 ---
 
+## Лабораторная №6 — Дизайн-система
+
+### Токены (`DS`)
+
+#### Colors
+| Токен | Значение |
+|---|---|
+| `DS.Colors.background` | `UIColor.systemBackground` |
+| `DS.Colors.secondaryBackground` | `UIColor.secondarySystemBackground` |
+| `DS.Colors.primary` | `UIColor.systemBlue` |
+| `DS.Colors.error` | `UIColor.systemRed` |
+| `DS.Colors.success` | `UIColor.systemGreen` |
+| `DS.Colors.warning` | `UIColor.systemOrange` |
+| `DS.Colors.textPrimary` | `UIColor.label` |
+| `DS.Colors.textSecondary` | `UIColor.secondaryLabel` |
+| `DS.Colors.buttonText` | `UIColor.white` |
+| `DS.Colors.iconDefault` | `UIColor.systemGray3` |
+
+#### Spacing
+| Токен | Значение |
+|---|---|
+| `DS.Spacing.xs` | 4 pt |
+| `DS.Spacing.s` | 8 pt |
+| `DS.Spacing.m` | 16 pt |
+| `DS.Spacing.l` | 24 pt |
+| `DS.Spacing.xl` | 40 pt |
+| `DS.Spacing.cornerRadius` | 12 pt |
+| `DS.Spacing.fieldHeight` | 50 pt |
+| `DS.Spacing.buttonHeight` | 50 pt |
+| `DS.Spacing.borderWidth` | 1.5 pt |
+
+#### Typography
+| Метод | Шрифт |
+|---|---|
+| `DS.Typography.largeTitle()` | 32pt bold |
+| `DS.Typography.title()` | 20pt semibold |
+| `DS.Typography.body()` | 16pt regular |
+| `DS.Typography.bodyMedium()` | 16pt semibold |
+| `DS.Typography.button()` | 17pt semibold |
+| `DS.Typography.caption()` | 14pt regular |
+| `DS.Typography.captionMedium()` | 14pt medium |
+| `DS.Typography.small()` | 13pt regular |
+
+### Компоненты
+
+#### `DSButton`
+```swift
+DSButton(style: .primary, title: "Sign In")   // синяя кнопка
+DSButton(style: .secondary, title: "Отмена")  // рамка, прозрачный фон
+DSButton(style: .destructive, title: "Удалить") // красная кнопка
+button.setLoading(true)   // спиннер вместо текста
+button.isEnabled = false  // alpha 0.5
+```
+
+#### `DSTextField`
+```swift
+let field = DSTextField()
+field.title = "Email"
+field.placeholder = "example@mail.com"
+field.errorText = "Неверный формат"   // показывает красную рамку + подпись
+field.errorText = nil                  // сбрасывает ошибку
+field.onTextChanged = { text in ... }
+```
+
+#### `DSStateView`
+```swift
+stateView.configure(with: .loading(message: "Загрузка..."))
+stateView.configure(with: .error(message: "Нет соединения", retryTitle: "Повторить"))
+stateView.configure(with: .empty(message: "Задач пока нет", image: nil))
+stateView.onRetry = { ... }
+```
+---
+### Допы
+- **D1 — Темизация Light/Dark**: описать что все цвета динамические через UIColor с traitCollection, есть LightTheme/DarkTheme, переключается автоматически через системные настройки
+- **D3 — TextStyle**: описать extension UILabel.apply(_ style:), перечислить доступные стили
+- **D4 — Валидируемые поля**: описать DSFieldConfig, DSFieldState (normal/error/disabled), как конфигурируется через configure(with:)
+- **D5 — DS для списка**: описать TaskCellViewModel, метод configure(with:), корректный prepareForReuse, маппинг в Presenter
+
+---
+
 ## Лабораторная №4
 
 ### API

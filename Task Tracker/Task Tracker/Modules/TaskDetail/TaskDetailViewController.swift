@@ -14,7 +14,7 @@ final class TaskDetailViewController: UIViewController, TaskDetailDisplayLogic, 
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = DS.Colors.background
         title = "Task Detail"
         setupPlaceholder()
         interactor?.fetchTask(request: TaskDetail.Fetch.Request())
@@ -23,8 +23,7 @@ final class TaskDetailViewController: UIViewController, TaskDetailDisplayLogic, 
     private func setupPlaceholder() {
         let label = UILabel()
         label.text = "Detail screen — coming soon"
-        label.font = .systemFont(ofSize: 18, weight: .medium)
-        label.textColor = .secondaryLabel
+        label.apply(.title, color: DS.Colors.textSecondary)
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -33,8 +32,8 @@ final class TaskDetailViewController: UIViewController, TaskDetailDisplayLogic, 
         NSLayoutConstraint.activate([
             label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             label.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            label.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: DS.Cell.horizontalMargin),
+            label.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -DS.Cell.horizontalMargin),
         ])
     }
 

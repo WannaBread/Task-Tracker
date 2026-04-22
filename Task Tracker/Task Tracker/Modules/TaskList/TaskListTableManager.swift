@@ -49,7 +49,7 @@ extension TaskListTableManager: UITableViewDataSource {
             withIdentifier: TaskListCell.reuseIdentifier,
             for: indexPath
         ) as! TaskListCell
-        cell.configure(with: items[indexPath.row])
+        cell.configure(with: items[indexPath.row].cellViewModel)
         return cell
     }
 }

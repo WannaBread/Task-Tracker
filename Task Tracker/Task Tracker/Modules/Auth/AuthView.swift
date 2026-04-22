@@ -6,27 +6,6 @@ final class AuthView: UIView {
     private var emailDebounceWork: DispatchWorkItem?
     private var passwordDebounceWork: DispatchWorkItem?
 
-    // MARK: - Layout Constants
-
-    private enum Layout {
-        static let cornerRadius: CGFloat = 12
-        static let fieldHeight: CGFloat = 50
-        static let buttonHeight: CGFloat = 50
-        static let horizontalPadding: CGFloat = 24
-        static let fieldInnerPadding: CGFloat = 16
-        static let topPadding: CGFloat = 240
-        static let bottomPadding: CGFloat = 40
-        static let titleToSubtitleSpacing: CGFloat = 8
-        static let subtitleToEmailSpacing: CGFloat = 40
-        static let fieldToErrorSpacing: CGFloat = 4
-        static let emailErrorToPasswordSpacing: CGFloat = 12
-        static let passwordErrorToGeneralErrorSpacing: CGFloat = 16
-        static let generalErrorToButtonSpacing: CGFloat = 24
-        static let spinnerTrailingInset: CGFloat = 16
-        static let disabledAlpha: CGFloat = 0.6
-        static let fieldBorderWidth: CGFloat = 1.5
-    }
-
     // MARK: - UI Elements
 
     private let scrollView: UIScrollView = {
@@ -55,8 +34,7 @@ final class AuthView: UIView {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Task Tracker"
-        label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
-        label.textColor = .label
+        label.apply(.largeTitle)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         label.accessibilityIdentifier = "auth_title_label"
@@ -66,56 +44,44 @@ final class AuthView: UIView {
     private let subtitleLabel: UILabel = {
         let label = UILabel()
         label.text = "Sign in to continue"
-        label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.apply(.body, color: DS.Colors.textSecondary)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         label.accessibilityIdentifier = "auth_subtitle_label"
         return label
     }()
 
-    private let emailTextField: UITextField = {
-        let tf = makeStyledTextField(placeholder: "Email", identifier: "auth_email_field")
-        tf.keyboardType = .emailAddress
-        tf.autocapitalizationType = .none
-        tf.autocorrectionType = .no
-        tf.returnKeyType = .next
-        return tf
+    private let emailField: DSTextField = {
+        let f = DSTextField()
+        f.configure(with: DSFieldConfig(
+            title: "Email",
+            placeholder: "Введите email",
+            keyboardType: .emailAddress,
+            autocapitalization: .none,
+            autocorrection: .no,
+            returnKeyType: .next
+        ))
+        f.accessibilityIdentifierForField = "auth_email_field"
+        f.translatesAutoresizingMaskIntoConstraints = false
+        return f
     }()
 
-    private let emailErrorLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        label.textColor = .systemRed
-        label.numberOfLines = 0
-        label.isHidden = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.accessibilityIdentifier = "auth_email_error_label"
-        return label
-    }()
-
-    private let passwordTextField: UITextField = {
-        let tf = makeStyledTextField(placeholder: "Password", identifier: "auth_password_field")
-        tf.isSecureTextEntry = true
-        tf.returnKeyType = .go
-        return tf
-    }()
-
-    private let passwordErrorLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-        label.textColor = .systemRed
-        label.numberOfLines = 0
-        label.isHidden = true
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.accessibilityIdentifier = "auth_password_error_label"
-        return label
+    private let passwordField: DSTextField = {
+        let f = DSTextField()
+        f.configure(with: DSFieldConfig(
+            title: "Пароль",
+            placeholder: "Введите пароль",
+            isSecure: true,
+            returnKeyType: .go
+        ))
+        f.accessibilityIdentifierForField = "auth_password_field"
+        f.translatesAutoresizingMaskIntoConstraints = false
+        return f
     }()
 
     private let errorLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-        label.textColor = .systemRed
+        label.apply(.captionMedium, color: DS.Colors.error)
         label.textAlignment = .center
         label.numberOfLines = 0
         label.isHidden = true
@@ -124,24 +90,12 @@ final class AuthView: UIView {
         return label
     }()
 
-    private let loginButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setTitle("Sign In", for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = .systemBlue
-        button.layer.cornerRadius = Layout.cornerRadius
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.accessibilityIdentifier = "auth_login_button"
-        return button
-    }()
-
-    private let spinner: UIActivityIndicatorView = {
-        let spinner = UIActivityIndicatorView(style: .medium)
-        spinner.hidesWhenStopped = true
-        spinner.color = .white
-        spinner.translatesAutoresizingMaskIntoConstraints = false
-        return spinner
+    private let loginButton: DSButton = {
+        let btn = DSButton()
+        btn.configure(with: DSButtonConfig(title: "Sign In", style: .primary))
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.accessibilityIdentifier = "auth_login_button"
+        return btn
     }()
 
     // MARK: - Init
@@ -149,7 +103,7 @@ final class AuthView: UIView {
     init(delegate: AuthViewDelegate?) {
         self.delegate = delegate
         super.init(frame: .zero)
-        backgroundColor = .systemBackground
+        backgroundColor = DS.Colors.background
         setupLayout()
         setupActions()
         setupKeyboardObservers()
@@ -160,51 +114,27 @@ final class AuthView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // MARK: - Factory Helpers
-
-    private static func makeStyledTextField(placeholder: String, identifier: String) -> UITextField {
-        let tf = UITextField()
-        tf.placeholder = placeholder
-        tf.borderStyle = .none
-        tf.translatesAutoresizingMaskIntoConstraints = false
-        tf.accessibilityIdentifier = identifier
-        tf.backgroundColor = .secondarySystemBackground
-        tf.layer.cornerRadius = Layout.cornerRadius
-        tf.leftView = UIView(frame: CGRect(x: 0, y: 0, width: Layout.fieldInnerPadding, height: 0))
-        tf.leftViewMode = .always
-        tf.rightView = UIView(frame: CGRect(x: 0, y: 0, width: Layout.fieldInnerPadding, height: 0))
-        tf.rightViewMode = .always
-        return tf
-    }
-
     // MARK: - Layout
 
     private func setupLayout() {
         addSubview(scrollView)
         scrollView.addSubview(contentView)
         contentView.addSubview(formStack)
-        loginButton.addSubview(spinner)
 
         formStack.addArrangedSubview(titleLabel)
-        formStack.setCustomSpacing(Layout.titleToSubtitleSpacing, after: titleLabel)
+        formStack.setCustomSpacing(DS.Spacing.s, after: titleLabel)
 
         formStack.addArrangedSubview(subtitleLabel)
-        formStack.setCustomSpacing(Layout.subtitleToEmailSpacing, after: subtitleLabel)
+        formStack.setCustomSpacing(DS.Spacing.xl, after: subtitleLabel)
 
-        formStack.addArrangedSubview(emailTextField)
-        formStack.setCustomSpacing(Layout.fieldToErrorSpacing, after: emailTextField)
+        formStack.addArrangedSubview(emailField)
+        formStack.setCustomSpacing(DS.Spacing.m, after: emailField)
 
-        formStack.addArrangedSubview(emailErrorLabel)
-        formStack.setCustomSpacing(Layout.emailErrorToPasswordSpacing, after: emailErrorLabel)
-
-        formStack.addArrangedSubview(passwordTextField)
-        formStack.setCustomSpacing(Layout.fieldToErrorSpacing, after: passwordTextField)
-
-        formStack.addArrangedSubview(passwordErrorLabel)
-        formStack.setCustomSpacing(Layout.passwordErrorToGeneralErrorSpacing, after: passwordErrorLabel)
+        formStack.addArrangedSubview(passwordField)
+        formStack.setCustomSpacing(DS.Spacing.m, after: passwordField)
 
         formStack.addArrangedSubview(errorLabel)
-        formStack.setCustomSpacing(Layout.generalErrorToButtonSpacing, after: errorLabel)
+        formStack.setCustomSpacing(DS.Spacing.l, after: errorLabel)
 
         formStack.addArrangedSubview(loginButton)
 
@@ -220,17 +150,12 @@ final class AuthView: UIView {
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
 
-            formStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Layout.topPadding),
-            formStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: Layout.horizontalPadding),
-            formStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -Layout.horizontalPadding),
-            formStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Layout.bottomPadding),
+            formStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: DS.Spacing.pageTopOffset),
+            formStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: DS.Spacing.l),
+            formStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -DS.Spacing.l),
+            formStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -DS.Spacing.xl),
 
-            emailTextField.heightAnchor.constraint(equalToConstant: Layout.fieldHeight),
-            passwordTextField.heightAnchor.constraint(equalToConstant: Layout.fieldHeight),
-            loginButton.heightAnchor.constraint(equalToConstant: Layout.buttonHeight),
-
-            spinner.centerYAnchor.constraint(equalTo: loginButton.centerYAnchor),
-            spinner.trailingAnchor.constraint(equalTo: loginButton.trailingAnchor, constant: -Layout.spinnerTrailingInset),
+            loginButton.heightAnchor.constraint(equalToConstant: DS.Spacing.buttonHeight),
         ])
     }
 
@@ -238,11 +163,31 @@ final class AuthView: UIView {
 
     private func setupActions() {
         loginButton.addTarget(self, action: #selector(loginTapped), for: .touchUpInside)
-        emailTextField.delegate = self
-        passwordTextField.delegate = self
 
-        emailTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
-        passwordTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        emailField.textFieldDelegate = self
+        passwordField.textFieldDelegate = self
+
+        emailField.onTextChanged = { [weak self] text in
+            guard let self else { return }
+            self.emailField.state = .normal
+            self.emailDebounceWork?.cancel()
+            let work = DispatchWorkItem { [weak self] in
+                self?.delegate?.authViewDidChangeEmail(text)
+            }
+            self.emailDebounceWork = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + DS.Animation.debounceDelay, execute: work)
+        }
+
+        passwordField.onTextChanged = { [weak self] text in
+            guard let self else { return }
+            self.passwordField.state = .normal
+            self.passwordDebounceWork?.cancel()
+            let work = DispatchWorkItem { [weak self] in
+                self?.delegate?.authViewDidChangePassword(text)
+            }
+            self.passwordDebounceWork = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + DS.Animation.debounceDelay, execute: work)
+        }
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tap.cancelsTouchesInView = false
@@ -251,35 +196,13 @@ final class AuthView: UIView {
 
     @objc private func loginTapped() {
         delegate?.authViewDidTapLogin(
-            email: emailTextField.text,
-            password: passwordTextField.text
+            email: emailField.text,
+            password: passwordField.text
         )
     }
 
     @objc private func dismissKeyboard() {
         endEditing(true)
-    }
-
-    @objc private func textFieldDidChange(_ textField: UITextField) {
-        clearFieldError(for: textField)
-
-        if textField === emailTextField {
-            emailDebounceWork?.cancel()
-            let work = DispatchWorkItem { [weak self] in
-                guard let self else { return }
-                self.delegate?.authViewDidChangeEmail(self.emailTextField.text ?? "")
-            }
-            emailDebounceWork = work
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
-        } else if textField === passwordTextField {
-            passwordDebounceWork?.cancel()
-            let work = DispatchWorkItem { [weak self] in
-                guard let self else { return }
-                self.delegate?.authViewDidChangePassword(self.passwordTextField.text ?? "")
-            }
-            passwordDebounceWork = work
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
-        }
     }
 
     // MARK: - Keyboard Handling
@@ -303,7 +226,7 @@ final class AuthView: UIView {
         let intersection = bounds.intersection(keyboardInView)
         let bottomInset = intersection.isNull ? 0 : intersection.height
 
-        let duration = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? 0.25
+        let duration = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) ?? DS.Animation.keyboardFallbackDuration
         UIView.animate(withDuration: duration) {
             self.scrollView.contentInset.bottom = bottomInset
             self.scrollView.verticalScrollIndicatorInsets.bottom = bottomInset
@@ -313,28 +236,15 @@ final class AuthView: UIView {
     // MARK: - Update State
 
     func update(with state: AuthViewState) {
-        loginButton.isEnabled = state.isLoginButtonEnabled
-        loginButton.alpha = state.isLoginButtonEnabled ? 1.0 : Layout.disabledAlpha
+        loginButton.configure(with: DSButtonConfig(
+            title: "Sign In",
+            style: .primary,
+            isEnabled: state.isLoginButtonEnabled,
+            isLoading: state.isLoading
+        ))
 
-        if state.isLoading {
-            spinner.startAnimating()
-            loginButton.setTitle("", for: .normal)
-        } else {
-            spinner.stopAnimating()
-            loginButton.setTitle("Sign In", for: .normal)
-        }
-
-        if let emailErr = state.emailError {
-            showFieldError(for: emailTextField, label: emailErrorLabel, message: emailErr)
-        } else {
-            clearFieldError(for: emailTextField)
-        }
-
-        if let passwordErr = state.passwordError {
-            showFieldError(for: passwordTextField, label: passwordErrorLabel, message: passwordErr)
-        } else {
-            clearFieldError(for: passwordTextField)
-        }
+        emailField.state = state.emailError.map { .error($0) } ?? .normal
+        passwordField.state = state.passwordError.map { .error($0) } ?? .normal
 
         if let error = state.errorText {
             errorLabel.text = error
@@ -348,40 +258,11 @@ final class AuthView: UIView {
     // MARK: - Field Validation (real-time)
 
     func updateEmailValidation(error: String?) {
-        if let err = error {
-            showFieldError(for: emailTextField, label: emailErrorLabel, message: err)
-        } else {
-            clearFieldError(for: emailTextField)
-        }
+        emailField.state = error.map { .error($0) } ?? .normal
     }
 
     func updatePasswordValidation(error: String?) {
-        if let err = error {
-            showFieldError(for: passwordTextField, label: passwordErrorLabel, message: err)
-        } else {
-            clearFieldError(for: passwordTextField)
-        }
-    }
-
-    // MARK: - Field Validation Helpers
-
-    private func showFieldError(for field: UITextField, label: UILabel, message: String) {
-        field.layer.borderWidth = Layout.fieldBorderWidth
-        field.layer.borderColor = UIColor.systemRed.cgColor
-        label.text = message
-        label.isHidden = false
-    }
-
-    private func clearFieldError(for textField: UITextField) {
-        textField.layer.borderWidth = 0
-        textField.layer.borderColor = nil
-        if textField === emailTextField {
-            emailErrorLabel.text = nil
-            emailErrorLabel.isHidden = true
-        } else if textField === passwordTextField {
-            passwordErrorLabel.text = nil
-            passwordErrorLabel.isHidden = true
-        }
+        passwordField.state = error.map { .error($0) } ?? .normal
     }
 }
 
@@ -389,10 +270,10 @@ final class AuthView: UIView {
 
 extension AuthView: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField === emailTextField {
-            passwordTextField.becomeFirstResponder()
-        } else if textField === passwordTextField {
-            passwordTextField.resignFirstResponder()
+        if textField === emailField.textField {
+            passwordField.becomeFirstResponder()
+        } else if textField === passwordField.textField {
+            passwordField.resignFirstResponder()
             loginTapped()
         }
         return true
