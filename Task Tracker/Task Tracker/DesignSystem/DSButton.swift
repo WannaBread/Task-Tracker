@@ -73,7 +73,7 @@ final class DSButton: UIControl {
             iconView.isHidden = true
             spinner.startAnimating()
             isUserInteractionEnabled = false
-            alpha = 1.0
+            alpha = DS.Animation.fullAlpha
         } else {
             spinner.stopAnimating()
             label.text = config.title
@@ -99,7 +99,7 @@ final class DSButton: UIControl {
             label.textColor = DS.Colors.buttonText
             iconView.tintColor = DS.Colors.buttonText
             spinner.color = DS.Colors.buttonText
-            layer.borderWidth = 0
+            layer.borderWidth = DS.Button.noBorderWidth
         case .secondary:
             backgroundColor = .clear
             label.textColor = DS.Colors.primary
@@ -112,7 +112,7 @@ final class DSButton: UIControl {
             label.textColor = DS.Colors.buttonText
             iconView.tintColor = DS.Colors.buttonText
             spinner.color = DS.Colors.buttonText
-            layer.borderWidth = 0
+            layer.borderWidth = DS.Button.noBorderWidth
         }
     }
 

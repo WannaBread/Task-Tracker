@@ -178,14 +178,14 @@ final class DSTextField: UIView {
     private func applyState(_ newState: DSFieldState) {
         switch newState {
         case .normal:
-            alpha = 1.0
+            alpha = DS.Animation.fullAlpha
             textField.isUserInteractionEnabled = true
             errorLabel.text = nil
             errorLabel.isHidden = true
-            fieldContainer.layer.borderWidth = 0
+            fieldContainer.layer.borderWidth = DS.Button.noBorderWidth
             fieldContainer.layer.borderColor = nil
         case .error(let message):
-            alpha = 1.0
+            alpha = DS.Animation.fullAlpha
             textField.isUserInteractionEnabled = true
             errorLabel.text = message
             errorLabel.isHidden = false
@@ -196,7 +196,7 @@ final class DSTextField: UIView {
             textField.isUserInteractionEnabled = false
             errorLabel.text = nil
             errorLabel.isHidden = true
-            fieldContainer.layer.borderWidth = 0
+            fieldContainer.layer.borderWidth = DS.Button.noBorderWidth
             fieldContainer.layer.borderColor = nil
         }
     }

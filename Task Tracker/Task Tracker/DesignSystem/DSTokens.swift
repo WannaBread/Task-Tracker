@@ -61,11 +61,13 @@ enum DS {
         static let tapDuration: TimeInterval = 0.1
         static let tapAlpha: CGFloat = 0.7
         static let disabledAlpha: CGFloat = 0.5
+        static let fullAlpha: CGFloat = 1.0
     }
 
     // MARK: - Button
     enum Button {
         static let secondaryBorderWidth: CGFloat = 1
+        static let noBorderWidth: CGFloat = 0
     }
 
     // MARK: - Typography
