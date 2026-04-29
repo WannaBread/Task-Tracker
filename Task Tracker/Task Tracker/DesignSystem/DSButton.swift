@@ -8,6 +8,10 @@ final class DSButton: UIControl {
     private let iconView = UIImageView()
     private let spinner = UIActivityIndicatorView(style: .medium)
 
+    // MARK: - Private API
+
+    private var onTap: (() -> Void)?
+
     // MARK: - State
 
     private var currentConfig: DSButtonConfig?
@@ -58,6 +62,7 @@ final class DSButton: UIControl {
 
         addTarget(self, action: #selector(touchDown), for: [.touchDown, .touchDragEnter])
         addTarget(self, action: #selector(touchUp), for: [.touchUpInside, .touchUpOutside, .touchCancel, .touchDragExit])
+        addTarget(self, action: #selector(handleTap), for: .touchUpInside)
     }
 
     // MARK: - Configure
@@ -65,6 +70,7 @@ final class DSButton: UIControl {
     func configure(with config: DSButtonConfig) {
 
         currentConfig = config
+        onTap = config.onTap
 
         applyVisualStyle(config.style)
 
@@ -123,6 +129,10 @@ final class DSButton: UIControl {
     }
 
     // MARK: - Touch feedback
+
+    @objc private func handleTap() {
+        onTap?()
+    }
 
     @objc private func touchDown() {
         UIView.animate(withDuration: DS.Animation.tapDuration) { self.alpha = DS.Animation.tapAlpha }

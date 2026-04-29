@@ -12,4 +12,5 @@ struct DSButtonConfig {
     var icon: UIImage? = nil
     var isEnabled: Bool = true
     var isLoading: Bool = false
+    var onTap: (() -> Void)? = nil
 }
