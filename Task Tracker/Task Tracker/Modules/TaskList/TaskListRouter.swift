@@ -9,8 +9,12 @@ final class TaskListRouter: TaskListRoutingLogic {
     }
 
     func navigateToTaskDetail(taskId: String) {
-        let detailVC = TaskDetailBuilder.build(taskId: taskId, taskService: taskService)
-        viewController?.navigationController?.pushViewController(detailVC, animated: true)
+        let config = BDUIScreenConfig(
+            title: "🤨",
+            source: .remote(endpoint: "https://alfaitmo.ru/server/echo/409172/bdui-task-detail")
+        )
+        let bduiVC = BDUIScreenBuilder.build(config: config)
+        viewController?.navigationController?.pushViewController(bduiVC, animated: true)
     }
 
     func navigateToCreateTask() {
